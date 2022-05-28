@@ -1,0 +1,22 @@
+<html>
+<body>
+    <script>
+        // 문자열 타입은 "", '', `` 으로 감싸서 할당해야 한다.
+        var string;
+
+        // 큰 따옴표로 할당
+        // 큰 따옴표 안에 작은 따옴표는 문자로 인식
+        string = "I'm ";
+
+        // 작은 따옴표로 할당
+        // 작은 따옴표 안에 큰 따옴표는 문자로 인식
+        string += 'cansus"4569"';
+
+        // 백틱으로 할당 (ES6 추가됨 - 템플릿 리터럴 방식)
+        string = `Hello ${string}
+        \u{1F600}`;
+
+        console.log(string);
+    </script>
+</body> 
+</html>

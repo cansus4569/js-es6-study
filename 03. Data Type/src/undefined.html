@@ -1,0 +1,27 @@
+<html>
+<body>
+    <script>
+        /*
+            02. Variable 에서 우리는 자바스크립트 엔진이
+            변수 선언시 값을 할당하지 안하면
+            undefined 로 초기화 된다는 것을 이야기했다.
+        */
+        var nothing;
+        console.log(nothing);
+        /*
+            자바스크립트 엔진이 스스로 변수에 메모리 할당시 쓰레기 값(Garbage) 들어가는 것을
+            막기 위해서 초기화(undefined)한 걸로 이해하면 쉽다.
+            즉, 개발자가 할당하는 값이 아닌 자바스크립트 엔진이 할당하는 값
+            그래서 개발자는 undefined로 값을 할당하는 것보다
+            null 값을 이용해 할당하는 것이 좋다.
+            그렇치 않을 경우 아래와 같은 혼돈이 발생한다.
+        */
+        var abc = undefined;
+        console.log(abc);
+        // 자바스크립트 엔진이 할당한것인가? 개발자가 의도적으로 할당한 값인가?
+        // 이러한 혼돈을 해결하기 위해 undefined 보다는 null 값을 할당하여 사용한다.
+        abc = null;
+        console.log(abc);
+    </script>
+</body> 
+</html>
