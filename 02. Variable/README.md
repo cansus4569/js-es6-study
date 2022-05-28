@@ -41,4 +41,4 @@ console.log("출력문2 : " + result);   // 3. 선언 이후 변수 참조
     * 선언문들은 런타임 이전에 읽어 드리지만, 값의 할당은 런타임때 실행된다.
 
 
-* [__예제 소스__](var_hoisting.html)
+* [__예제 소스__](./src/var_hoisting.html)
