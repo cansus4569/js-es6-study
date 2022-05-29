@@ -1,0 +1,24 @@
+<html>
+<body>
+    <script>
+        // ES5 문법
+        var obj_es5 = {
+            name: 'cansus',
+            talk: function() {
+                console.log('Hello, ' + this.name);
+            }
+        };
+        obj_es5.talk(); // Hello, cansus
+        /*********************************/
+        // ES6 문법
+        const obj_es6 = {
+            name: 'cansus',
+            // 메서드 축약 표현
+            talk() {
+                console.log('Hello, ' + this.name);
+            }
+        };
+        obj_es6.talk(); // Hello, cansus
+    </script>
+</body> 
+</html>

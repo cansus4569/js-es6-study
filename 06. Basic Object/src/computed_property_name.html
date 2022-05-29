@@ -1,0 +1,29 @@
+<html>
+<body>
+    <script>
+        // ES5 문법
+        var prefix_es5 = 'No';
+        var i = 0;
+        var obj_es5 = {};
+
+        // 식별자를 이용한 프로퍼티 키 동적 생성
+        // 참고 : ES5는 객체 리터럴 외부에서 가능
+        obj_es5[prefix_es5 + '.' + ++i] = 'Purple';
+        obj_es5[prefix_es5 + '.' + ++i] = 'Blue';
+        obj_es5[prefix_es5 + '.' + ++i] = 'Green';
+        console.log(obj_es5); // {'No.1': 'Purple', 'No.2': 'Blue', 'No.3': 'Green'}
+        /*********************************/
+        // ES6 문법
+        const prefix_es6 = 'Codename';
+        let j = 0;
+        // 식별자를 이용한 프로퍼티 키 동적 생성
+        // 참고 : ES6는 객체 리터럴 내부에서 가능
+        const obj_es6 = {
+            [prefix_es6 + '_' + ++j]: 'Alpha',
+            [prefix_es6 + '_' + ++j]: 'Delta',
+            [prefix_es6 + '_' + ++j]: 'Bravo'
+        };
+        console.log(obj_es6); // {'Codename_1': 'Alpha', 'Codename_2': 'Delta', 'Codename_3': 'Bravo'}
+    </script>
+</body> 
+</html>

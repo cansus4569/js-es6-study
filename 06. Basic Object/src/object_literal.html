@@ -1,0 +1,19 @@
+<html>
+<body>
+    <script>
+        var store = {
+            food: 'mara-tang',
+            price: 8000,
+            soldout: false,
+            order: function() {
+                console.log("request");
+            }
+        };
+        console.log(typeof store); // object
+        console.log(store); // {food: "mara-tang", price: 8000, soldout: false, order: ƒ}
+
+        var empty = {}; // 빈 객체
+        console.log(typeof empty); // object
+    </script>
+</body> 
+</html>
