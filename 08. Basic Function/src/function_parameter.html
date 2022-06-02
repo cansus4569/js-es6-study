@@ -1,0 +1,23 @@
+<html>
+<body>
+    <script>
+        function cal(primitive, obj) {
+            primitive += 10;
+            obj.name = 'Park';
+        }
+        
+        var num = 10;
+        var person = {
+            name: 'Kim'
+        };
+
+        console.log(num); // 10
+        console.log(person); // {name: "Kim"}
+
+        cal(num, person);
+
+        console.log(num); // 10
+        console.log(person); // {name: "Park"}
+    </script>
+</body> 
+</html>
