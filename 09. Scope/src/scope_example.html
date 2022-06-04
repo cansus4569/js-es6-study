@@ -1,0 +1,20 @@
+<html>
+<body>
+    <script>
+        let a = 'global scope';
+
+        function foo() {
+            let a = 'local scope';
+            console.log(a); // local scope
+        }
+
+        foo();
+
+        console.log(a); // global scope
+
+        // 비슷한 비유
+        // Global동에 사는 a군과 Local동에 사는 a군
+        // 대신, 같은동에 동일한 a는 있을 수 없다. (유일성[Unique)
+    </script>
+</body> 
+</html>
