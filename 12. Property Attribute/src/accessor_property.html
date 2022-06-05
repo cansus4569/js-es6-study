@@ -1,0 +1,71 @@
+<html>
+<body>
+    <script>
+        const person = {
+            // 데이터 프로퍼티
+            firstName: "cansus",
+            lastName: "park",
+
+            // fullName은 접근자 함수로 구성된 접근자 프로퍼티
+            // getter 함수
+            get fullName() {
+                return this.firstName + " " + this.lastName;
+            },
+            // setter 함수
+            set fullName(name) {
+                // 배열 디스트럭처링 할당 --> 이름을 공백으로 분리
+                [this.firstName, this.lastName] = name.split(" ");
+            }
+        };
+        // 데이터 프로퍼티를 통한 프로퍼티 값의 참조
+        console.log(person.firstName + ' ' + person.lastName); // cansus park
+
+        // 접근자 프로퍼티를 통한 프로퍼티 값의 저장
+        // 접근자 프로퍼티 fullName에 값을 저장하면 setter 함수가 호출된다.
+        person.fullName = "Park Can";
+        console.log(person) // {firstName: "Park", lastName: "Can"}
+
+        // 접근자 프로퍼티를 통한 프로퍼티 값의 참조
+        // 접근자 프로퍼티 fullName에 접근하면 getter 함수가 호출된다.
+        console.log(person.fullName); // Park Can
+
+        // firstName은 데이터 프로퍼티다.
+        // 데이터 프로퍼티는 다음과 같은 프로퍼티 어트리뷰트를 가진다.
+        /*
+            [[Value]]: "Park"
+            [[Writable]]: true
+            [[Enumerable]]: true
+            [[Configurable]]: true
+        */
+        let descriptor = Object.getOwnPropertyDescriptor(person, "firstName");
+        console.log(descriptor);
+        // {value: "Park", writable: true, enumerable: true, configurable: true}
+
+        // fullName은 접근자 프로퍼티다.
+        // 접근자 프로퍼티는 다음과 같은 프로퍼티 어트리뷰트를 가진다.
+        /*
+            [[Get]]: function () {
+                return this.firstName + " " + this.lastName;
+            }
+            [[Set]]: function (name) {
+                [this.firstName, this.lastName] = name.split(" ");
+            }
+            [[Enumerable]]: true
+            [[Configurable]]: true
+        */
+        descriptor = Object.getOwnPropertyDescriptor(person, "fullName");
+        console.log(descriptor); 
+        // {get: function, set: function, enumerable: true, configurable: true}
+
+        // 일반 객체의 __proto__는 접근자 프로퍼티이다.
+        console.log(Object.getOwnPropertyDescriptor(Object.prototype, '__proto__')); 
+        // {get: function, set: undefined, enumerable: false, configurable: false}
+        console.log(Object.getOwnPropertyDescriptor(Object.prototype, 'prototype')); // undfined
+
+        console.log(Object.getOwnPropertyDescriptor(function() {}, '__proto__')); // undefined
+        // 함수 객체의 prototype은 데이터 프로퍼티이다.
+        console.log(Object.getOwnPropertyDescriptor(function() {}, 'prototype')); 
+        // {value: Object, writable: true, enumerable: false, configurable: true}
+    </script>
+</body> 
+</html>
