@@ -1,0 +1,23 @@
+<html>
+<body>
+    <script>
+        // 이번엔 함수 표현식으로 함수 생성
+        var tt = function(radius) {
+            this.radius = radius;
+            this.getDiameter = function() {
+                return 2 * this.radius;
+            };
+        };
+        // tt 식별자에 대한 정보
+        console.log(tt); // function(radius) { this.radius = radius; this.getDiameter = function() { return 2 * this.radius; }; }
+        console.log(tt(5)); // undefined / return이 없기에 undefined 반환
+        console.log(typeof tt); // function (주목!!!)
+
+        // new 연산자를 이용하면 객체를 생성함
+        var test2 = new tt(5);
+        console.log(test2); // tt {radius: 5, getDiameter: ƒ}
+        console.log(test2.getDiameter()); // 10
+        console.log(typeof test2); // object (주목!!!)
+    </script>
+</body> 
+</html>
