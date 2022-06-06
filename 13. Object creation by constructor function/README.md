@@ -202,6 +202,7 @@ new foo();
     * non-constructor : [ [ Construct ] ] 갖지 않는 함수 객체
         * 생성자 함수로 호출할 수 없는 함수
 * 모든 함수 객체는 callable 이지만, constructor 이거나 non-constructor 이다.
+
 ![function_object](https://user-images.githubusercontent.com/63139527/172150791-824059d6-fd47-47d7-94a4-7f60f67b81bb.png)
 
 ### 5. constructor와 non-constructor의 구분
