@@ -36,7 +36,7 @@
     * arguments 객체는 인수를 프로퍼티 값으로 소유하며 프로퍼티 키는 인수의 순서를 나타냄
 * <font color="green" style="font-weight: bold;">초록 네모 박스</font>
     * legnth 프로퍼티는 인수의 개수를 나타냄
-* <font color="blue" style="font-weight: bold;">빨간 네모 박스</font>
+* <font color="blue" style="font-weight: bold;">파랑 네모 박스</font>
     * callee 프로퍼티는 호출되어 arguments 객체를 생성한 함수를 나타냄
 
 * arguments 객체의 Symbol(Symbol.iterator) 프로퍼티는 arguments 객체를 순회 가능한 자료구조인 이터러블로 만들기 위한 프로퍼티 
