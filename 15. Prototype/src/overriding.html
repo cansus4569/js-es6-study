@@ -1,0 +1,55 @@
+<html>
+<body>
+    <script>
+        const Person = (function() {
+            // 생성자 함수
+            function Person(name) {
+                this.name = name;
+            }
+            // 프로토타입 메서드
+            Person.prototype.sayHello = function() {
+                console.log('Hi My name is ' + this.name);
+            };
+            // 생성자 함수 반환
+            return Person;
+        }());
+
+        const me = new Person('Park');
+
+        // 인스턴스 메서드 --> 오버라이딩
+        me.sayHello = function() {
+            console.log('Hey! My name is ' + this.name);
+        };
+
+        // 인스턴스 메서드 호출 --> 프로토타입 메서드는 "프로퍼티 섀도잉" 된다.
+        me.sayHello(); // Hey! My name is Park
+
+        /* -------------------------------------------------- */
+        // 프로퍼티 삭제의 경우
+        // 인스턴스 메서드 삭제
+        delete me.sayHello;
+        // 상속으로 인해 프로토타입 메서드가 호출됨
+        me.sayHello(); // Hi My name is Park
+
+        delete me.sayHello;
+        // 프로토타입 메서드가 호출됨
+        me.sayHello(); // Hi My name is Park
+
+        // 하위 객체를 통해 프로토타입의 프로퍼티를 변경 또는 삭제는 불가능하다.
+        // get 액세스는 허용되나 set 액세스는 허용되지 않는다.
+
+        /* -------------------------------------------------- */
+        // 프로토타입 프로퍼티를 변경 또는 삭제하려면 프로토타입에 직접 접근해야 한다.
+
+        // 프로토타입 메서드 변경
+        Person.prototype.sayHello = function() {
+            console.log('Hey! My name is ' + this.name);
+        };
+        me.sayHello(); // Hey! My name is Park
+
+        // 프로토타입 메서드 삭제
+        delete Person.prototype.sayHello;
+        me.sayHello(); // TypeError: me.sayHello is not a function
+    </script>
+</body> 
+</html>

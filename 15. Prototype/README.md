@@ -158,26 +158,105 @@ const me = new Person('Park');
 console.log(me.constructor === Person); // true
 ```
 
-
 ## 리터럴 표기법에 의해 생성된 객체의 생성자 함수와 프로토타입
+* 리터럴 표기법에 의해 생성된 객체도 상속을 위해 프로토타입이 필요
+* 리터럴 표기법에 의해 생성된 객체도 가상적인 생성자 함수를 갖는다.
+* 프로토타입과 생성자 함수는 단독으로 존재할 수 없고 언제나 쌍으로 존재한다.
+
+리터럴 표기법|생성자 함수|프로토타입
+-|-|-
+객체 리터럴|Object|Object.prototype
+함수 리터럴|Function|Function.prototype
+배열 리터럴|Array|Array.prototype
+정규 표현식 리터럴|RegExp|RegExp.prototype
 
 ## 프로토타입의 생성 시점
+* 프로토타입은 생성자 함수가 생성되는 시점에 더불어 생성됨
 
 ### 1. 사용자 정의 생성자 함수와 프로토타입 생성 시점
+* constructor는 함수 정의가 평가되어 함수 객체를 생성하는 시점에 프로토타입도 생성됨
+```javascript
+// 함수 호이스팅
+console.log(Person.prototype); // {constructor: f}
 
+// 생성자 함수 (함수 선언문)
+function Person(name) {
+    this.name = name;
+}
+```
 ### 2. 빌트인 생성자 함수와 프로토타입 생성 시점
+* 모든 빌트인 생성자 함수는 전역 객체가 생성되는 시점에 생성
+* 이후 생성자 함수 또는 리터럴 표기법으로 객체를 생성하면 프로토타입은 생성된 객체의 [ [ Prototype ] ] 내부 슬롯에 할당됨
 
 ## 객체 생성 방식과 프로토타입의 결정
-
+* 프로토타입은 추상 연산 OrdinaryObjectCreate에 전달되는 인수에 의해 결정된다.
+* 이 인수는 객체가 생성되는 시점에 객체 생성 방식에 의해 결정됨
 ### 1. 객체 리터럴에 의해 생성된 객체의 프로토타입
-
+* 추상 연산 OrdinaryObjectCreate에 전달되는 프로토타입은 **Object.prototype**
+```javascript
+const obj = { x: 1 };
+console.log(obj.constructor === Object); // true
+console.log(obj.hasOwnProperty('x')); // true
+```
 ### 2. Object 생성자 함수에 의해 생성된 객체의 프로토타입
+* 추상 연산 OrdinaryObjectCreate에 전달되는 프로토타입은 **Object.prototype**
+```javascript
+const obj = new Object();
+obj.x = 1;
+console.log(obj.constructor === Object); // true
+console.log(obj.hasOwnProperty('x')); // true
+```
 
+**NOTE**
+```
+차이점 : 객체 리터럴 생성 방식 vs Object 생성자 함수 방식
+: 프로퍼티를 추가하는 방식이 다름
+ -> 객체 리터럴 방식 : 리터럴 내부에 프로퍼티를 추가
+ -> Object 생성자 함수 방식 : 빈 객체 생성한 이후 동적 프로퍼티 추가
+```
 ### 3. 생성자 함수에 의해 생성된 객체의 프로토타입
+* 추상 연산 OrdinaryObjectCreate에 전달되는 프로토타입은 **생성자 함수의 prototype 프로퍼티에 바인딩되어 있는 객채**
+* **하지만**, 사용자 정의 생성자 함수로 생성된 프로토타입의 프로퍼티는 **constructor 뿐**이다.
+```javascript
+function Person(name) {
+    this.name = name;
+}
+
+// 프로토타입 메서드
+Person.prototype.sayHello = function () {
+    console.log('Hi! My name is ' + this.name);
+};
+
+const me = new Person("Park");
+const you = new Person("Cansus");
+
+me.sayHello(); // Hi! My name is Park
+you.sayHello(); // Hi! My name is Cansus
+```
 
 ## 프로토타입 체인
+* 객체의 프로퍼티(메서드 포함)에 접근하려고 할 때 해당 객체에 접근하려는 프로퍼티가 없다면 [ [ Prototype ] ] 내부 슬롯의 참조를 따라 자신의 부모 역할을 하는 프로토타입의 프로퍼티를 순차적으로 검색한다.
+* 프로토타입 체인은 자바스크립트가 객체지향 프로그래밍의 상속을 구현하는 메커니즘이다.
+```javascript
+function Person(name) {
+    this.name = name;
+}
 
-## 오버라이팅과 프로퍼티 섀도잉
+Person.prototype.sayHello = function () {
+    console.log('Hi! My name is ' + this.name);
+};
+
+const me = new Person('Park');
+```
+![prototype_chain](https://user-images.githubusercontent.com/63139527/172846818-7fd8ea99-00f6-49fb-b495-f66b5ca87d68.png)
+
+## 오버라이딩과 프로퍼티 섀도잉 ([예제]())
+* 오버라이딩 : 상위 클래스가 가지고 있는 메서드를 하위 클래스가 재정의하여 사용하는 방식
+    
+* 프로토타입 프로퍼티와 같은 이름의 프로퍼티를 인스턴스에 추가하면 프로토타입 체인을 따라 프로토 타입 프로퍼티를 검색하여 프로토타입 프로퍼티를 덮어쓰는것이 아닌 인스턴스 프로퍼티로 추가함
+    * 인스턴스 메서드 sayHello는 프로토타입 메서드 sayHello를 **오버라이딩** 했다.
+    * 프로토타입 메서드 sayHello는 가려지는 현상을 **프로퍼티 섀도잉** 이라 함
+![overriding](https://user-images.githubusercontent.com/63139527/172873995-7412bb63-3138-43f7-8e4e-78f95284099c.png)
 
 ## 프로토타입의 교체
 
