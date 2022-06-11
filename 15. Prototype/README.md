@@ -248,7 +248,8 @@ Person.prototype.sayHello = function () {
 
 const me = new Person('Park');
 ```
-![prototype_chain](https://user-images.githubusercontent.com/63139527/172846818-7fd8ea99-00f6-49fb-b495-f66b5ca87d68.png)
+![prototype_chain](https://user-images.githubusercontent.com/63139527/173193623-14f85bdc-67b7-4aa9-abe3-cb4857b0aa2d.png)
+
 
 ## 오버라이딩과 프로퍼티 섀도잉 ([예제]())
 * 오버라이딩 : 상위 클래스가 가지고 있는 메서드를 하위 클래스가 재정의하여 사용하는 방식
@@ -259,13 +260,24 @@ const me = new Person('Park');
 ![overriding](https://user-images.githubusercontent.com/63139527/172873995-7412bb63-3138-43f7-8e4e-78f95284099c.png)
 
 ## 프로토타입의 교체
+* 프로토타입은 임의의 다른 객체로 변경이 가능
+* 방법 : 생성자 함수, 인스턴스로 교체 가능
+* 이런게 있다는 정도만 알아두자!
+    * 이유 : **직접상속** 또는 **ES6 도입된 클래스**를 사용하는것을 권장
+### 1. 생성자 함수에 의한 프로토타입의 교체 ([예제](./src/exchange_1.html))
+![exchange1](https://user-images.githubusercontent.com/63139527/173193748-8ff3af77-fc5b-41dc-80fd-505c72b751bd.png)
 
-### 1. 생성자 함수에 의한 프로토타입의 교체
+### 2. 인스턴스에 의한 프로토타입의 교체 ([예제](./src/exchange_2.html))
+![exchange2](https://user-images.githubusercontent.com/63139527/173193751-cb1c37a7-7ff5-42aa-83bc-db128a4b96bb.png)
 
-### 2. 인스턴스에 의한 프로토타입의 교체
-
-## instanceof 연산자
-
+## instanceof 연산자 ([예제](./src/instanceof.html))
+* 이항 연산자
+* 좌변 : 객체 식별자
+* 우변 : 생성자 함수 식별자
+```
+객체 instanceof 생성자 함수
+```
+* 우변 생성자 함수의 prototype에 바인딩된 객체가 좌변의 객체의 **프로토타입 체인 상에 존재**하면 true 반환, 그렇지 않은 경우 false 반환
 ## 직접 상속
 
 ### 1. Object.create에 의한 직접 상속

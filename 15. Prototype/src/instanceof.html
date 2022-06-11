@@ -1,0 +1,31 @@
+<html>
+<body>
+    <script>
+        const Person = (function() {
+            function Person(name) {
+                this.name = name;
+            }
+
+            // 생성자 함수의 prototype 프로퍼티를 통해 프로토타입 교체
+            Person.prototype = {
+                // consturctor 프로퍼티와 생성자 함수 간의 연결 설정
+                // constructor: Person,
+                sayHello() {
+                    console.log('hi! ' + this.name);
+                }
+            };
+            return Person;
+        }());
+        const me = new Person('Park');
+
+        // contructor 프로퍼티와 생성자 함수 간의 연결이 
+        // 파괴되어도 instanceof는 아무런 영향을 받지 않는다.
+        console.log(me.constructor === Person); // false
+
+        // Person.prototype이 me 객체의 프로토타입 체인 상에 존재
+        console.log(me instanceof Person); // true
+        // Object.prototype이 me 객체의 프로토타입 체인 상에 존재
+        console.log(me instanceof Object); // true
+    </script>
+</body> 
+</html>

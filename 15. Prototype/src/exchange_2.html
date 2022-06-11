@@ -1,0 +1,32 @@
+<html>
+<body>
+    <script>
+        function Person(name) {
+            this.name = name;
+        }
+        
+        const me = new Person('Park');
+
+        // 프로토타입으로 교체할 객체
+        const parent = {
+            // constructor 프로퍼티와 생성자 함수 간의 연결 설정
+            // constructor: Person,
+            sayHello() {
+                console.log('hi! ' + this.name);
+            }
+        };
+
+        // 생성자 함수의 prototype 프로퍼티와 프로토타입 간의 연결 설정
+        // Person.prototype = parent;
+
+        // me 객체의 프로토타입을 parent 객체로 교체한다.
+        Object.setPrototypeOf(me, parent);
+        // me.__proto__ = parent;
+
+        me.sayHello(); // hi! Park
+
+        console.log(me.constructor === Person); // false
+        console.log(me.constructor === Object); // true
+    </script>
+</body> 
+</html>
