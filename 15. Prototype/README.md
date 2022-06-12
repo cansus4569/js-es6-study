@@ -280,9 +280,68 @@ const me = new Person('Park');
 * 우변 생성자 함수의 prototype에 바인딩된 객체가 좌변의 객체의 **프로토타입 체인 상에 존재**하면 true 반환, 그렇지 않은 경우 false 반환
 ## 직접 상속
 
-### 1. Object.create에 의한 직접 상속
+### 1. Object.create에 의한 직접 상속 ([예제](./src/object_create.html))
+* Object.create 메서드 : 명시적으로 프로토타입을 지정하여 새로운 객체를 생성
+    * 추상 연산 OrdinaryObjectCreate를 호출하여 생성함
+
+```javascript
+/**
+ * 지정된 프로토타입 및 프로퍼티를 갖는 새로운 객체를 생성하여 반환
+ * @param {Object} prototype - 생성할 객체의 프로토타입으로 지정할 객체
+ * @param {Object} [propertiesObject] - 생성할 객체의 프로퍼티를 갖는 객체
+ * @return {Object} 지정된 프로토타입 및 프로퍼티를 갖는 새로운 객체
+ */
+Object.create(prototype[, propertiesObject])
+```
+
+* Object.create 장점
+    * new 연산자 없이도 객체 생성 가능
+    * 프로토타입을 지정하면서 객체 생성 가능
+    * 객체 리터럴에 의해 생성된 객체도 상속 가능
+
+* Object.create 단점
+    * 두 번째 인자로 프로퍼티를 정의하는 것이 번거로움
+        * __ proto __ 접근자 프로퍼티를 사용한 직접 상속 방식 사용
+
+* ESLint 에서는 Object.prototype 빌트인 메서드 직접 호출을 권장하지 않음
+    * 이유 : Object.create로 프로토타입 체인 종점 객체를 생성할 수 있기 때문
+        * 체인 종점 객체는 Object.prototype 빌트인 메서드 사용 불가
+
+```javascript
+// 프로토타입 체인 종점 객체 생성
+const obj = Object.create(null);
+obj.a = 1;
+
+// obj는 Object.prototype 빌트인 메서드 사용 불가
+console.log(obj.hasOwnProperty('a'));
+// TypeError: obj.hasOwnProperty is not a function
+```
+* 이러한 위험요소를 없애기 위해 빌트인 메서드는 간접적으로 호출하여 사용하는것을 권장
+```javascript
+// 프로토타입 체인 종점 객체 생성
+const obj = Object.create(null);
+obj.a = 1;
+
+// 빌트인 메서드 간접 호출
+console.log(Object.prototype.hasOwnProperty.call(obj, 'a')); // ture
+```
 
 ### 2. 객체 리터럴 내부에서 __ proto __에 의한 직접 상속
+* ES6에서 객체 리터럴 내부에서 __ proto __ 접근자 프로퍼티를 사용하여 직접 상속 구현함
+
+```javascript
+const myProto = { x: 10 };
+
+// 객체 리터럴에 의해 객체를 생성 & 프로토타입 지정하여 직접 상속 받음
+const obj = {
+    y: 20,
+    // 객체를 직접 상속 받음
+    // obj -> myProto -> Object.prototype -> null
+    __proto__: myProto
+};
+console.log(obj.x, obj.y); // 10 20
+console.log(Object.getPrototypeOf(obj) === myProto); // true
+```
 
 ## 정적 프로퍼티/메서드
 
