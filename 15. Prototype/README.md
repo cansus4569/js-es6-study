@@ -257,6 +257,7 @@ const me = new Person('Park');
 * 프로토타입 프로퍼티와 같은 이름의 프로퍼티를 인스턴스에 추가하면 프로토타입 체인을 따라 프로토 타입 프로퍼티를 검색하여 프로토타입 프로퍼티를 덮어쓰는것이 아닌 인스턴스 프로퍼티로 추가함
     * 인스턴스 메서드 sayHello는 프로토타입 메서드 sayHello를 **오버라이딩** 했다.
     * 프로토타입 메서드 sayHello는 가려지는 현상을 **프로퍼티 섀도잉** 이라 함
+
 ![overriding](https://user-images.githubusercontent.com/63139527/172873995-7412bb63-3138-43f7-8e4e-78f95284099c.png)
 
 ## 프로토타입의 교체
@@ -343,16 +344,158 @@ console.log(obj.x, obj.y); // 10 20
 console.log(Object.getPrototypeOf(obj) === myProto); // true
 ```
 
-## 정적 프로퍼티/메서드
+## 정적 프로퍼티/메서드 ([예제](./src/static_prop_method.html))
+* 정적(static) 프로퍼티/메서드는 생성자 함수로 인스턴스를 생성하지 않아도 참조/호출할 수 있는 프로퍼티/메서드를 말한다.
+* 인스턴스의 프로토타입 체인에 속한 객체의 프로퍼티/메서드가 아니므로 인스턴스로 접근 불가능
+```javascript
+Person.staticMethod(); // staticMethod
+me.staticMethod(); // TypeError: me.staticMethod is not a function
+```
+![static_prop_method](https://user-images.githubusercontent.com/63139527/173227964-41d5f15a-4d69-40c2-91eb-1bf393b05c1a.png)
+
+```javascript
+// Object.create는 정적 메서드
+// Object 생성자 함수가 생성한 객체로 호출 불가능
+const obj = Object.create({ name: 'Park' });
+// Object.prototype.hasOwnProperty는 프로토타입 메서드
+// Object.prototype의 메서드 이므로 모든 객체가 호출 가능
+obj.hasOwnProperty('name');; // false
+```
+
+**NOTE**
+```
+프로토타입 프로퍼티/메서드를 표기할 때 prototype --> # 으로 표기
+ex)
+Object.prototype.isPrototypeOf --> Object#isPrototypeOf
+```
 
 ## 프로퍼티 존재 확인
 
 ### 1. in 연산자
+* `in 연산자`는 객체 내에 특정 프로퍼티가 **존재하는지 여부**를 확인한다.
+```javascript
+/**
+ * key: 프로퍼티 키를 나타내는 문자열
+ * object: 객체로 평가되는 표현식
+ */
+key in object
+```
+* `주의` : 객체가 **상속받은 모든 프로토타입 프로퍼티**도 확인함
+```javascript
+const person = {
+    name: 'Park',
+    address: 'Panggyo'
+};
 
+console.log('name' in person); // true
+console.log('address' in person); // true
+console.log('age' in person); // false
+console.log('toString' in person); // true (프로토타입 체인 검색)
+```
+* ES6에서 도입된 `Reflect.has` 메서드는 in 연산자와 동일하게 동작함
+```javascript
+const person = { name: 'Park' };
+console.log(Reflect.has(person, 'name')); // true
+console.log(Reflect.has(person, 'toString')); // true (프로토타입 체인 검색)
+```
 ### 2. Object.prototype.hasOwnProperty 메서드
-
+* `Object.prototype.hasOwnProperty` 메서드 : 객체에 특정 프로퍼티가 존재하는지 확인
+    * 객체 고유의 프로퍼티 키인 경우에만 true 반환
+    * **상속받은 프로토타입의 프로퍼티 키인 경우 false 반환**
+```javascript
+console.log(person.hasOwnProperty('toString')); // false
+```
 ## 프로퍼티 열거
 
 ### 1. for ... in 문
+* 객체의 프로퍼티 개수만큼 순회
+* 변수 선언문 : 선언한 변수에 프로퍼티 키를 할당
+```javascript
+for (변수선언문 in 객체) { ... }
+```
+* `for ... in 문`은 **객체의 프로토타입 체인 상에 존재하는 모든 프로토타입의 프로퍼티 중에서 프로퍼티 어트리뷰트 [ [ Enumerable ] ]의 값이 true인 프로퍼티를 순회하며 열거한다.**
+* 프로퍼티 키가 **심벌**인 프로퍼티는 열거하지 않는다.
+```javascript
+const person = {
+    name: 'Park',
+    address: 'Panggyo',
+    __proto__: { age: 30 },
+    [sym]: 10 // 심벌 프로퍼티
+};
+console.log('toString' in person); // true
+
+for (const key in person) {
+    console.log(key + ' : ' + person[key]);
+}
+// name : Park
+// address : Panggyo
+// age: 30
+
+// toString 프로퍼티가 열거가 안되는 이유 (enumerable: false)
+console.log(Object.getOwnPropertyDescriptor(Object.prototype, 'toString'));
+// {value: f, writable: true, enumerable: false, configurable: true}
+
+// 객체 고유 프로퍼티만 열거하려면 Object.prototype.hasOwnProperty 메서드를 이용한다.
+for (const key2 in person) {
+    // 객체 자신의 프로퍼티인지 확인(체크)
+    if ( !person.hasOwnProperty(key2)) continue;
+    console.log(key2 + ' : ' + person[key2]);
+}
+// name : Park
+// address : Panggyo
+```
+
+* 배열도 객체이므로 프로퍼티와 상속받은 프로퍼티가 포함된다.
+* 배열의 경우 for ... in문을 사용하지 말고 **for문, for ... of문, Array.prototype.forEach 메서드** 사용을 권장
+
+```javascript
+const arr = [1, 2, 3];
+arr.x = 10; // 배열(=객체) 이므로 프로퍼티 가짐
+
+for (const i in arr) {
+    // 프로퍼티 x도 출력됨
+    console.log(arr[i]); // 1 2 3 10
+}
+
+// arr.length는 3
+for (let i = 0; i < arr.length; i++) {
+    console.log(arr[i]); // 1 2 3
+}
+
+// forEach 메서드는 요소가 아닌 프로퍼티는 제외함
+arr.forEach(v => console.log(v)); // 1 2 3
+
+// for ... of는 변수 선언문에서 선언한 변수에 키가 아닌 값을 할당한다.
+for (const value of arr) {
+    console.log(value); // 1 2 3
+}
+```
 
 ### 2. Object.keys/values/entries 메서드
+* 객체 자신의 고유 프로퍼티만 열거하기 위해서 Object.keys/values/entries 메서드 사용 권장
+
+* `Object.keys` 메서드 : **프로퍼티 키**를 **배열**로 반환
+```javascript
+const person = {
+    name: 'Park',
+    address: 'Panggyo',
+    __proto__: { age: 20 }
+};
+console.log(Object.keys(person)); // ["name", "address"]
+```
+
+* (ES8) `Object.values` 메서드 : **프로퍼티 값**을 **배열**로 반환
+```javascript
+console.log(Object.values(person)); // ["Park", "Panggyo"]
+```
+
+* (ES8) `Object.entries` 메서드 : **프로퍼티 키와 값의 쌍의 배열**을 **배열**로 반환
+```javascript
+console.log(Object.entries(person)); 
+// [["name", "Park"], ["address", "Panggyo"]]
+Object.entries(person).forEach(([key, value]) => console.log(key, value));
+/*
+name Park
+address Panggyou
+*/
+```

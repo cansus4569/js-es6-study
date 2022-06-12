@@ -1,0 +1,32 @@
+<html>
+<body>
+    <script>
+        // 생성자 함수
+        function Person(name) {
+            this.name = name;
+        }
+
+        // 프로토타입 메서드
+        Person.prototype.sayHello = function() {
+            console.log('hi! ' + this.name);
+        };
+
+        // 정적 프로퍼티
+        Person.staticProp = 'staticProp';
+
+        // 정적 메서드
+        Person.staticMethod = function() {
+            console.log('staticMethod');
+        };
+        
+        const me = new Person('Park');
+
+        // 생성자 함수에 추가한 정적 프로퍼티/메서드는 생성자 함수로 참조/호출 가능
+        Person.staticMethod();
+
+        // 정적 프로퍼티/메서드는 생성자 함수가 생성한 인스턴스로 참조/호출 불가
+        // 인스턴스로 참조/호출할 수 있는 프로퍼티/메서드는 프로토타입 체인 상에 존재해야 함
+        me.staticMethod(); // TypeError: me.staticMethod is not a function
+    </script>
+</body> 
+</html>
