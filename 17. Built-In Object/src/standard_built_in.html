@@ -1,0 +1,33 @@
+<html>
+<body>
+    <script>
+        // String 생성자 함수
+        const strObj = new String('Park'); // String {"Park"}
+        console.log(typeof strObj); // object
+
+        // Number 생성자 함수
+        const numObj = new Number(123); // Number {123}
+        console.log(typeof numObj); // object
+
+        // Boolean 생성자 함수
+        const boolObj = new Boolean(true); // Boolean {true}
+        console.log(typeof boolObj); // object
+
+        // Function 생성자 함수
+        const funcObj = new Function('x', 'return x * x'); // f anonymous(x)
+        console.log(typeof funcObj); // function
+
+        // Array 생성자 함수
+        const arrObj = new Array(1, 2, 3); // Array [1, 2, 3]
+        console.log(typeof arrObj); // object
+
+        // RegExp 생성자 함수
+        const regExp = new RegExp(/ab+c/i); // /ab+c/i
+        console.log(typeof regExp); // object
+
+        // Date 생성자 함수
+        const date = new Date();
+        console.log(typeof date); // object
+    </script>
+</body> 
+</html>
