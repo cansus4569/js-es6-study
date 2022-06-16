@@ -1,0 +1,30 @@
+<html>
+<body>
+    <script>
+        // 숫자
+        isNaN(NaN); // true
+        isNaN(10); // false
+
+        // 문자열
+        isNaN('hihi'); // true
+        isNaN('10'); // false
+        isNaN('10.12'); // false
+        isNaN(''); // '' -> 0 false
+        isNaN(' '); // ' ' -> 0 false
+
+        // 불리언
+        isNaN(true); // true -> 1 false
+        isNaN(null); // null -> 0 false
+
+        // undefined
+        isNaN(undefined); // true
+
+        // 객체
+        isNaN({}); // true
+
+        // date
+        isNaN(new Date()); // false
+        isNaN(new Date().toString()); // true
+    </script>
+</body> 
+</html>

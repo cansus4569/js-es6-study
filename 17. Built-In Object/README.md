@@ -89,9 +89,183 @@ console.log(typeof str, str); // string hello
     * 객체 처럼 사용하면 에러가 발생
 
 ## 전역 객체
+* 코드가 실행되기 이전 **자바스크립트 엔진에 의해 생성**되는 특수한 객체이며, 어떤 객체에도 속하지 않은 **최상위 객체**
+
+* 전역 객체는 표준 빌트인 객체, 호스트 객체, var 키워드로 선언한 전역 변수와 전역 함수를 프로퍼티로 갖는다.
+
+* 전역 객체 특징
+    * 개발자가 의도적으로 생성할 수 없음. 전역 객체를 생성할 수 있는 생성자 함수가 제공 안함
+    * 전역 객체의 프로퍼티를 참조할 때 window(또는 global) 식별자를 생략할 수 있음
+
+* let 이나 const 키워드로 선언한 전역 변수는 전역 객체의 프로퍼티가 아니다.
+    * 보이지 않는 개념적 블록(전역 렉시컬 환경의 선언적 환경 레코드) 내에 존재하기 때문
+
+**NOTE**
+```
+ES11에서 도입된 globalThis는 호스트 객체를 통일한 식별자이다.
+```
+```javascript
+// 브라우저 환경
+globalThis === this     // true
+globalThis === window   // true
+globalThis === self     // true
+globalThis === frames   // true
+// Node.js 환경
+globalThis === this     // true
+globalThis === global   // true
+```
 
 ### 1. 빌트인 전역 프로퍼티
+* 빌트인 전역 프로퍼티는 전역 객체의 프로퍼티를 의미
+* 주로 애플리케이션 전역에서 사용하는 값을 제공
+
+`Infinity`
+- Infinity 프로퍼티는 무한대를 나타내는 숫자값
+```javascript
+// 전역 프로퍼티는 window를 생략하고 참조 가능
+console.log(window.Infinity === Infinity); // true
+
+// 양의 무한대
+console.log(3/0); // Infinity
+// 음의 무한대
+console.log(-3/0); // -Infinity
+// Infinity는 숫자값이다.
+console.log(typeof Infinity); // number
+```
+
+`NaN`
+* NaN 프로퍼티는 숫자가 아님(Not-a-Number)을 나타내는 숫자값 (= Number.NaN 프로퍼티)
+```javascript
+console.log(window.NaN); // NaN
+console.log(Number('xyz')); // NaN
+console.log(1 * 'string'); // NaN
+console.log(typeof NaN); // number
+```
+
+`undefined`
+* undefined 프로퍼티는 원시타입 undefined 값
+```javascript
+console.log(window.undefined); // undefined
+var foo;
+console.log(foo); // undefined
+console.log(typeof undefined); // undefined
+```
 
 ### 2. 빌트인 전역 함수
+* 빌트인 전역 함수는 애플리케이션 전역에서 호출할 수 있는 빌트인 함수(=전역 객체의 메서드)
+
+`eval` ([예제](./src/eval.html))
+* 자바스크립트 코드를 나타내는 문자열을 인수로 전달 받음
+* 전달 받은 인수가
+    * 표현식이면, 문자열 코드를 런타임에 평가하여 값 생성
+    * 문이라면, 문자열 코드를 런타임에 실행
+    * 여러 개의 문으로 이루어져 있다면, 모든 문을 실행한 다음 마지막 결과값을 반환
+```javascript
+/**
+ * 주어진 문자열 코드(인수)를 런타임에 평가 또는 실행한다.
+ * @param {string} code - 코드를 나타내는 문자열
+ * @returns {*} 문자열 코드를 평가/실행한 결과값
+ */
+eval(code);
+```
+* eval 함수는 자신이 호출된 위치에 해당하는 기존의 스코프를 런타임에 동적으로 수정
+* strict mode에서는 eval 함수 자신의 자체적인 스코프를 생성
+* let, consst 키워드를 사용한 변수 선언문이면 암묵적으로 strict mode 적용
+
+* **eval 함수 사용은 금지한다!**
+    * 보안에 매우 취약함
+    * 자바스크립트 엔진에 의한 최적화 적용이 안되 성능이 안좋음
+
+`isFinite` ([예제](./src/isFinite.html))
+```javascript
+/**
+ * 전달받은 인수가 유한수인지 확인하고 그 결과를 반환
+ * @param {number} testValue - 검사 대상 값
+ * @returns {boolean} 유한수 여부 확인 결과
+ */
+isFinite(testValue)
+```
+* isFinite(null)은 true 반환
+    * null을 숫자로 변환하여 검사를 수행 -> null의 숫자 타입은 0 이다.
+
+`isNaN` ([예제](./src/isNaN.html))
+```javascript
+/**
+ * 주어진 숫자가 NaN인지 확인하고 그 결과를 반환
+ * @param {number} testValue - 검사 대상 값
+ * @returns {boolean} NaN 여부 확인 결과
+ */
+isNaN(testValue)
+```
+
+`parseFloat` ([예제](./src/parseFloat.html))
+```javascript
+/**
+ * 전달받은 문자열 인수를 실수로 해석하여 반환
+ * @param {string} string - 변환 대상 값
+ * @returns {number} 변환 결과
+ */
+parseFloat(string)
+```
+
+`parseInt`
+
+`encodeURI / decodeURI`
+
+`encodeURIComponent / decodeURIComponent`
 
 ### 3. 암묵적 전역
+* 자바스크립트 엔진은 y=20을 window.y=20으로 해석하여 전역 객체에 프로퍼티를 동적 생성
+* y는 전역 객체의 프로퍼티가 되어 전역 변수처럼 동작
+* 이러한 현상을 **암묵적 전역** 이라고 한다.
+```javascript
+var x = 10; // 전역 변수
+function foo() {
+    // 선언하지 않은 식별자에 값 할당
+    y = 20; // window.y = 20;
+}
+foo();
+// 선언하지 않은 식별자 y를 전역에서 참조할 수 있음
+console.log(x + y); // 30
+```
+
+* 하지만 y는 전역 객체의 프로퍼티로 추가됨  
+=> y는 변수가 아님 -> 변수 호이스팅이 발생하지 않음
+
+```javascript
+// 전역 변수 x는 호이스팅이 발생
+console.log(x); // undefined
+// 전역 객체의 프로퍼티인 y는 호이스팅이 발생 하지 않음
+console.log(y); // ReferenceError : y is not defined
+
+var x = 10; // 전역 변수
+
+function foo() {
+    // 선언하지 않은 식별자에게 값 할당
+    y = 20; // window.y = 20;
+}
+foo();
+// 선언하지 않은 식별자 y를 전역에서 참조할 수 있음
+console.log(x + y); // 30
+```
+
+* 프로퍼티인 y는 delete 연산자로 삭제 가능
+* 전역 변수는 프로퍼티이지만 delete 연산자로 삭제 불가능
+```javascript
+var x = 10; // 전역 변수
+function foo() {
+    // 선언하지 않은 식별자에 값 할당
+    y = 20; // window.y = 20;
+    console.log(x + y);
+}
+foo(); // 30
+
+console.log(window.x); // 10
+console.log(window.y); // 20
+
+delete x; // 전역 변수는 삭제 안됨
+delete y; // 프로퍼티는 삭제됨
+
+console.log(window.x); // 10
+console.log(window.y); // undefined
+```
