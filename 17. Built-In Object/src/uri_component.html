@@ -1,0 +1,16 @@
+<html>
+<body>
+    <script>
+        // URI 쿼리 스트링
+        const uriComp = 'name=홍길동&age=20&job=theif&hero';
+
+        // 쿼리 스트링 구분자도 인코딩됨
+        let enc = encodeURIComponent(uriComp);
+        console.log(enc);
+        // name%3D%ED%99%8D%EA%B8%B0%EB%8F%99%26age%3D20%26job%3Dtheif%26hero
+
+        let dec = decodeURIComponent(enc);
+        console.log(dec); // name=홍길동&age=20&job=theif&hero
+    </script>
+</body> 
+</html>

@@ -1,0 +1,13 @@
+<html>
+<body>
+    <script>
+        const uri = 'http://www.example.com/index.html?id=1&name=홍길동';
+
+        const enc = encodeURI(uri);
+        console.log(enc); // http://www.example.com/index.html?id=1&name=%ED%99%8D%EA%B8%B0%EB%8F%99
+
+        const dec = decodeURI(enc);
+        console.log(dec); // http://www.example.com/index.html?id=1&name=홍길동
+    </script>
+</body> 
+</html>

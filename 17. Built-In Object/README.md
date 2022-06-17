@@ -208,11 +208,72 @@ isNaN(testValue)
 parseFloat(string)
 ```
 
-`parseInt`
+`parseInt` ([예제](./src/parseInt.html))
+```javascript
+/**
+ * 전달받은 문자열 인수를 정수로해석하여 반환
+ * @param {string} string - 변환 대상 값
+ * @param {number} [radix] - 진법을 나타내는 기수(2 ~ 36, 기본값 10진수)
+ * @returns {number} 변환 결과
+ */
+parseInt(string, radix);
+```
+* 인수가 문자열이 아니면 문자열로 변환한 다음, 정수로 해석하여 변환
+* 기수를 지정하여 10진수 숫자를 해당 기수의 문자열로 변환하여 반환하고 싶을 떈, `Number.prototype.toString` 메서드를 사용
+* 16진수 리터럴("0x" 또는 "0X")이면 16진수로 해석하여 10진수 정수로 반환
+* 2진수 리터럴("0b")과 8진수 리터럴("0o")는 해석하지 못한다.
+* 문자열의 첫 번째 문자가 해당 지수의 숫자로 변환될 수 없다면 NaN을 반환
+* 두 번째 문자부터 해당 진수를 나타내는 숫자가 아닌 문자와 마주치면 무시되며, 해석된 정수값만 반환
+* 공백이 있다면 첫 번쨰 문자열만 해석하여 반환하며 앞뒤 공백은 무시됨
 
-`encodeURI / decodeURI`
+`encodeURI / decodeURI` ([예제](./src/encode_decode_uri.html))
+* 이스케이프 처리
+    * 어떤 시스템에서도 읽을 수 있는 아스키 문자 셋으로 변환
+    * ex) 공백 문자 ==> %20
+    * ex) 한글 "가" ==> %EC%9E%90
 
-`encodeURIComponent / decodeURIComponent`
+* URI 문법 형식 표준 RFC3986
+    * URL은 아스키 문자 셋으로만 구성
+    * URL내에서 의미를 갖고 있는 문자(%, ?, #)나 URL에 올 수 없는 문자(한글, 공백 등) 또는 시스템에 의해 해석될수 있는 문자(<,>)를 이스케이프 처리하여 야기될 수 있는 문제를 예방하기 위해 이스케이프 처리가 필요
+    * 알파벳, 0~9 숫자, -_.!~*'() 문자는 제외
+
+![URI](https://user-images.githubusercontent.com/63139527/174308674-ff9f3501-14b4-4fa9-8160-160df3ab29a7.png)
+
+```javascript
+/**
+ * 완전한 URI를 문자열로 전달받아 이스케이프 처리를 위해 인코딩
+ * @param {string} uri - 완전한 URI
+ * @returns {string} 인코딩된 URI
+ */
+encodeURI(uri);
+
+/**
+ * 인코딩된 URI를 전달받아 이스케이프 처리 이전으로 디코딩한다.
+ * @param {string} encodedURI - 인코딩된 URI
+ * @returns {string} 디코딩된 URI
+ */
+decodeURI(encodedURI);
+```
+* **쿼리 스트링 구분자로 사용되는 =, ?, & 은 인코딩하지 않음** 
+
+
+`encodeURIComponent / decodeURIComponent` ([예제](./src/uri_component.html))
+```javascript
+/**
+ * URI의 구성요소를 전달받아 이스케이프 처리를 위해 인코딩
+ * @param {string} uriComponent - URI 구성요소
+ * @returns {string} 인코딩된 URI의 구성요소
+ */
+encodeURIComponent(uriComponent);
+
+/**
+ * 인코딩된 URI 구성요소를 전달받아 이스케이프 처리 이전으로 디코딩
+ * @param {string} encodedURIComponent - 인코딩된 URI 구성요소
+ * @returns {string} 디코딩된 URI 구성요소
+ */
+decodeURIComponent(encodedURIComponent);
+```
+* **쿼리 스트링 구분자로 사용되는 =, ?, & 까지 인코딩 한다.**
 
 ### 3. 암묵적 전역
 * 자바스크립트 엔진은 y=20을 window.y=20으로 해석하여 전역 객체에 프로퍼티를 동적 생성
