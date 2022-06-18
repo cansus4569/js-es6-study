@@ -1,0 +1,45 @@
+<html>
+<body>
+    <script>
+        function getThisBinding() {
+            return this;
+        }
+        // this로 사용할 객체
+        const thisArg = { a: 1 };
+
+        // bind 메서드는 함수에 this로 사용할 객체를 전달
+        // bind 메서드는 함수를 호출하지 않는다.
+        console.log(getThisBinding.bind(thisArg)); // getThisBinding
+        // bind 메서드는 함수를 호출하지 않으므로 명시적으로 호출해야 한다.
+        console.log(getThisBinding.bind(thisArg)()); // {a: 1}
+
+        /********************/
+        // (1) 문제가 발생하는 구조
+        const error_person = {
+            name: 'Park',
+            foo(callback) {
+                setTimeout(callback, 100);
+            }
+        };
+        error_person.foo(function () {
+            console.log('Hi! my name is ' + this.name + '.');
+            // Hi! my name is .
+            // 일반 함수로 호출된 콜백 함수 내부의 this.name은 window.name과 같다.`
+        });
+
+        /********************/
+        // (2) bind 메서드로 문제 해결
+        const person = {
+            name: 'Park',
+            foo(callback) {
+                // bind 메서드를 이용해서 this로 사용할 객체를 전달
+                setTimeout(callback.bind(this), 100);
+            }
+        };
+        person.foo(function () {
+            console.log('Hi! my name is ' + this.name + '.');
+            // Hi! my name is Park.
+        });
+    </script>
+</body> 
+</html>

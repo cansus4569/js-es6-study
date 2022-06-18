@@ -1,0 +1,74 @@
+<html>
+<body>
+    <script>
+        function a() {
+            console.log("a : ", this); // window
+            function b() { // 중첩 함수
+                console.log("b : ", this); // window 
+            }
+            b();
+        }
+        a();
+
+        function c() {
+            'use strict'; // strict mode 일때는 this는 undefined
+            console.log("c : ", this); // undefined
+            function d() { // 중첩 함수
+                console.log("d : ", this); // undefined
+            }
+            d();
+        }
+        c();
+
+        var value = 1; // 젼역 변수
+        const obj = {
+            value: 100,
+            foo() {
+                console.log("foo's this : ", this); // {value: 100, foo: f}
+                console.log("foo's this value : ", this.value); // 100
+
+                // 메서드 내에 정의한 중첩 함수
+                function bar() {
+                    console.log("bar's this : ", this); // window
+                    console.log("bar's this value : ", this.value); // 1
+                }
+
+                // 콜백 함수 내부의 this 에는 전역 객체가 바인딩
+                setTimeout(function() {
+                    console.log("setTimeout's this : ", this); // window
+                    console.log("setTimeout's this value : ", this.value); // 1
+                },100);
+            }
+        };
+        obj.foo();
+
+        // 중첩 함수와 콜백 함수의 this 바인딩을 메서드의 this 바인딩과 일치시키는 방법
+        var global_val = 1;
+        const obj2 = {
+            global_val: 100,
+            foo() {
+                /********** 1번째 방법 **********/
+                // this 바인딩(obj2)을 변수 that에 할당
+                const that = this;
+
+                // 콜백 함수 내부에서 this 대신 that 참조
+                setTimeout(function () {
+                    console.log("that.global_val : ",that.global_val); // 100
+                },100);
+                /********** 2번째 방법 **********/
+                // 콜백 함수에 명시적으로 this를 바인딩
+                // Function.prototype.bind 메서드 사용
+                setTimeout(function () {
+                    console.log("this.global_val : ",this.global_val); // 100
+                }.bind(this),100);
+                /********** 3번째 방법 **********/
+                // 화살표 함수 내부의 this는 상위 스코프의 this를 가리킨다.
+                setTimeout(() => {
+                    console.log("this.global_val : ",this.global_val); // 100
+                },100);
+            }
+        };
+        obj2.foo();
+    </script>
+</body> 
+</html>
