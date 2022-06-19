@@ -1,0 +1,33 @@
+<html>
+<body>
+    <script>
+        // 함수를 반환하는 고차 함수
+        // 이 함수는 카운트 상태를 유지하기 위한 자유 변수 counter를 기억하는 클로저를 반환
+        const counter = (function () {
+            // 카운트 상태를 유지하기 위한 자유 변수
+            let count = 0;
+            // 함수를 인수로 전달받는 클로저를 반환
+            return function (active) {
+                // 인수로 전달받은 보조 함수에 상태 변경을 위임
+                count = active(count);
+                return count;
+            };
+        }());
+        // 보조 함수
+        function increse(num) {
+            return ++num;
+        }
+        // 보조 함수
+        function decrese(num) {
+            return --num;
+        }
+
+        // 보조 함수를 전달하여 호출
+        console.log(counter(increse)); // 1
+        console.log(counter(increse)); // 2
+        // 자유 변수를 공유 한다.
+        console.log(counter(decrese)); // 1
+        console.log(counter(decrese)); // 0
+    </script>
+</body> 
+</html>
