@@ -1,0 +1,27 @@
+<html>
+<body>
+    <script>
+        class StaticMethod {
+            // 정적 메서드
+            static area(width, height) {
+                return width * height;
+            }
+        }
+        console.log(StaticMethod.area(10,5)); // 50
+
+        class PrototypeMethod {
+            constructor(width, height) {
+                this.width = width;
+                this.height = height;
+            }
+
+            // 프로토타입 메서드
+            area() {
+                return this.width * this.height;
+            }
+        }
+        const square = new PrototypeMethod(10,10);
+        console.log(square.area()); // 100
+    </script>
+</body> 
+</html>
