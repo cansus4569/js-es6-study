@@ -1,0 +1,33 @@
+<html>
+<body>
+    <script>
+        // 1번째 방안 ( var 키워드 사용한 방식 )
+        var funcs = [];
+
+        for (var i = 0; i < 3; i ++) {
+            funcs[i] = (function (id) {
+                return function() {
+                    return id;
+                };
+            }(i));
+        }
+
+        for(var j = 0; j < funcs.length; j++) {
+            console.log(funcs[j]());
+        }
+
+        // 2번째 방안 ( let 키워드 사용한 방식 )
+        const func = [];
+        for(let i = 0; i < 3; i++) {
+            func[i] = function() { return i; };
+        }
+        for(let j = 0; j < func.length; j++) {
+            console.log(func[j]());
+        }
+
+        // 3번째 방안 (고차 함수 사용한 방식)
+        const foo = Array.from(new Array(3), (_, i) => () => i);
+        foo.forEach(f => console.log(f()));
+    </script>
+</body> 
+</html>

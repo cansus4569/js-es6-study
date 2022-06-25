@@ -1,0 +1,117 @@
+<html>
+<body>
+    <script>
+        function Person1(name, age) {
+            this.name = name; // public
+            let _age = age; // private
+
+            // 인스턴스 메서드
+            this.sayHi = function() {
+                console.log(`Hi, I'm ${this.name}. I am ${_age} years old.`);
+            };
+        }
+        const me1 = new Person1('Park', 20);
+        me1.sayHi(); // Hi, I'm Park. I am 20 years old.
+        console.log(me1.name); // Park
+        console.log(me1._age); // undefined
+
+        const you1 = new Person1('Kim', 30);
+        you1.sayHi(); // Hi, I'm Kim. I am 30 years old.
+        console.log(you1.name); // Kim
+        console.log(you1._age); // undefined
+
+        // _age 변수는 Person1 생성자 함수의 지역 변수이므로
+        // Person1 생성자 함수 외부에서 참조하거나 변경할 수 없다.
+        // 즉, _age 변수는 private으로 사용 가능하다.
+
+        // sayHi 메서드는 인스턴스 메서드이므로 
+        //Person1 객체가 생성될 떄 마다 중복 생성된다.
+        // sayHi 메서드를 프로토타입 메서드로 변경하여
+        // sayHi 메서드의 중복 생성을 방지해보자.
+
+        ////////////////////////////////////////////////////
+
+        function Person2(name, age) {
+            this.name = name; // public
+            let _age = age; // private
+        }
+        
+        // 프로토타입 메서드
+        Person2.prototype.sayHi = function() {
+            // Person 생성자 함수의 지역 변수 _age를 참조할 수 없다.
+            console.log(`Hi, I'm ${this.name}. I am ${_age} years old.`);
+        };
+
+        const me2 = new Person2('Park', 20);
+        console.log(me2);
+        //me2.sayHi(); // ReferenceError: _age is not defined
+
+        // Person2.prototype.sayHi 메서드 내에서 
+        // Person2 생성자 함수의 지역 변수 _age를 참조할 수 없는 문제 발생!
+        // 즉시 실행 함수를 사용하여 Person 생성자 함수와
+        // Person.prototype.sayHi 메서드를 하나의 함수 내에 모아보자.
+
+        ////////////////////////////////////////////////////
+        const Person3 = (function() {
+            let _age = 0; // private
+
+            // 생성자 함수
+            function Person3(name, age) {
+                this.name = name; // public
+                _age = age;
+            }
+
+            // 프로토타입 메서드
+            Person3.prototype.sayHi = function() {
+                console.log(`Hi, I'm ${this.name}. I am ${_age} years old.`);
+            };
+
+            // 생성자 함수를 반환
+            return Person3;
+        }());
+
+        const me3 = new Person3('Park', 20);
+        me3.sayHi(); // Hi, I'm Park. I am 20 years old.
+        console.log(me3.name); // Park
+        console.log(me3._age); // undefined
+
+        const you3 = new Person3('Kim', 30);
+        you3.sayHi(); // Hi, I'm Kim. I am 30 years old.
+        console.log(you3.name); // Kim
+        console.log(you3._age); // undefined
+        
+        /**
+         * 즉시 실행 함수가 반환하는 Person 생성자 함수와
+         * Person 생성자 함수의 인스턴스가 상속받아 호출할
+         * Person3.prototype.sayHi 메서드는 즉시 실행 함수가 종료된 이후 호출됨
+         * Person 생성자 함수와 sayHi 메서드는 이미 종료되어 소멸한 
+         * 즉시 실행 함수의 지역 변수 _age를 참조할 수 있는 클로저이다.
+         * 
+         * 위 코드도 문제가 있다....
+         * Person 생성자 함수가 여러 개의 인스턴스를 생성할 경우
+         * 다음과 같이 _age 변수 상태가 유지되지 않는다.
+         */
+        const me = new Person3('PPP', 20);
+        me.sayHi(); // Hi, I'm PPP. I am 20 years old.
+
+        const you = new Person3('JJJ', 30);
+        you.sayHi(); // Hi, I'm JJJ. I am 30 years old.
+
+        // _age 변수 값이 변경됨
+        me.sayHi(); // Hi, I'm PPP. I am 30 years old.
+
+        /**
+         * Person3.prototype.sayHi 메서드가 단 한번 생성되는 
+         * 클로저이기 떄문에 발생하는 현상
+         * Person3.prototype.sayHi 메서드는 즉시 실행 함수가 호출될 떄 생성
+         * sayHi 메서드는 자신의 사위 스코프인 즉시 실행 함수의 실행 컨텍스트의
+         * 렉시컬 환경의 참조를 [[Environment]]에 저장하여 기억한다.
+         * 따라서, Person 생성자 함수의 모든 인스턴스가 상속을 통해 호출할 수 있는
+         * Person3.prototype.sayHi 메서드의 상위 스코프는
+         * 어떤 인스턴스로 호출하더라도 하나의 동일한 상위 스코프를 사용하게 된다.
+         */
+
+
+    </script>
+</body> 
+</html>
