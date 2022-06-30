@@ -1,0 +1,24 @@
+<html>
+<body>
+    <script>
+        // 수퍼 클래스
+        class Base {
+            constructor(name) {
+                this.name = name;
+            }
+            sayHi() {
+                return `Hi, I'm ${this.name}`;
+            }
+        }
+        // 서브 클래스
+        class Derived extends Base {
+            sayHi() {
+                return `${super.sayHi()}. How are you doing?`;
+            }
+        }
+
+        const derived = new Derived('John');
+        console.log(derived.sayHi()); // Hi, I'm John. How are you doing?
+    </script>
+</body> 
+</html>

@@ -1,0 +1,23 @@
+<html>
+<body>
+    <script>
+        // 수퍼 클래스
+        class Base {
+            constructor(name) {
+                this.name = name;
+            }
+            sayHi() {
+                return `Hi, I'm ${this.name}`;
+            }
+        }
+        
+        class Derived extends Base {
+            sayHi() {
+                // __super는 Base.prototype을 가리킨다.
+                const __super = Object.getPrototypeOf(Derived.prototype);
+                return `${__super.sayHi.call(this)}. How are you doing?`;
+            }
+        }
+    </script>
+</body> 
+</html>

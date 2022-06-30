@@ -499,16 +499,137 @@ console.log(MyMath.increment());
 ```
 
 ## 상속에 의한 클래스 확장
+### 1. 클래스 상속과 생성자 함수 상속 ([예제](./src/class_extends.html))
+* 프로토타입 기반 상속과는 다른 개념
+* 프로토타입 기반 상속  
+: 프로토타입 체인을 통해 다른 객체의 자산을 상속 받음
+* 상속에 의한 클래스 확장  
+: **기존 클래스를 상속받아 새로운 클래스를 확장하여 정의**
+* 클래스와 생성자 함수는 인스턴스를 생성할 수 있는 함수라는 점에서 유사
+    * 차이점 : 클래스는 상속을 통해 기존 클래스를 확장할 수 있는 문법이 제공
+        * `extends` 키워드 사용
+    * 코드 재사용 관점에서 매우 유용
 
-### 1. 클래스 상속과 생성자 함수 상속
+![class_extends drawio](https://user-images.githubusercontent.com/63139527/176683766-c04fa8c4-3413-48eb-af99-c565c16f9665.png)
 
 ### 2. extends 키워드
+* 상속을 통해 클래스를 확장하려면 `extends` 키워드를 사용하여 상속받을 클래스를 정의
+* 상속을 통해 확장된 클래스를 명명
+    * 서브 클래스 or 파생 클래스 or 자식 클래스
+* 상속할 때 상위 클래스를 명명
+    * 수퍼 클래스 or 베이스 클래스 or 부모 클래스
+
+```javascript
+// 수퍼(베이스/부모) 클래스
+class Base {}
+// 서브(파생/자식) 클래스
+class Derived extends Base {}
+```
+
+![extends_keyword drawio](https://user-images.githubusercontent.com/63139527/176688430-19ff5bfb-3574-438a-8d3d-2041dd486ab3.png)
+
+* 클래스도 프로토타입을 통해 상속 관계를 구현함
+* 수퍼 클래스와 서브 클래스는 인스턴스의 프로토타입 체인뿐 아니라 클래스 간의 프로토타입 체인도 생성한다.
+    * 프로토타입 메서드, 정적 메서드 모두 상속 가능
 
 ### 3. 동적 상속
+* extends 키워드 앞에는 반드시 클래스가 와야한다.
+* extends 키워드는 생성자 함수를 상속받아 클래스를 확장할 수도 있음
+```javascript
+// 생성자 함수
+function Base (a) {
+    this.a = a;
+}
+// 생성자 함수를 상속 받는 서브 클래스
+class Derived extends Base {}
+
+const derived = new Derived(1);
+console.log(derived); // Derived { a: 1 }
+```
+
+* extends 키워드 다음에는 [ [ Construct ] ] 내부 메서드를 갖는 함수 객체로 평가될 수 있는 모든 표현식을 사용할 수 있다.
+    * 동적으로 상속받을 대상을 결정할 수 있다.
+
+```javascript
+function Base1() {}
+
+class Base2 {}
+
+let condition = true;
+
+class Derived extends (condition ? Base1 : Base2) {}
+
+const derived = new Derived();
+console.log(derived); // Derived {}
+
+console.log(derived instanceof Base1); // true
+console.log(derived instanceof Base2); // false
+```
 
 ### 4. 서브클래스의 constructor
+* 서브 클래스에도 `constructor` 를 생략하면 암묵적으로 정의된다.
+```javascript
+constructor(...args) { super(...args); }
+```
+* args는 new 연산자와 함께 클래스를 호출할 때 전달한 인수의 리스트
+* super()는 수퍼 클래스의 constructor(super-constructor)를 호출하여 인스턴스를 생성
+
+**NOTE : Rest 파라미터**
+```
+매개변수에 ... 를 붙이면 Rest 파라미터가 된다.
+Rest 파라미터는 함수에 전달된 인수들의 목록을 배열로 전달받는다.
+```
+
+* 예제
+```javascript
+// 수퍼 클래스
+class Base {
+    // constructor 생략시 암묵적으로 정의됨
+    // constructor() {}
+}
+// 서브 클래스
+class Derived extends Base {
+    // constructor 생략시 암묵적으로 정의됨
+    // constructor(...args) { super(...args); }
+}
+const derived = new Derived();
+console.log(derived); // Derived {}
+```
+* 프로퍼티를 소유하는 인스턴스를 생성하려면 constructor 내부에서 인스턴스에 프로퍼티를 추가해야 한다.
 
 ### 5. super 키워드
+#### 5.1 super 호출
+* 수퍼 클래스의 constructor(super-constructor)를 호출 
+
+* **수퍼 클래스의 constructor 내부에서 추가한 프로퍼티를 그대로 갖는 인스턴스를 생성한다면**, **서브 클래스의 constructor 생략 가능**
+    * 서브 클래스를 호출하면서 전달한 인수는 암묵적 정의된 constructor의 super 호출을 통해 수퍼 클래스의 constructor에 전달됨
+    * [예제](./src/super_call_1.html)
+* **수퍼 클래스의 constructor 내부에서 추가한 프로퍼티와 서브 클래스에서 추가한 프로퍼티를 갖는 인스턴스를 생성한다면**, **서브 클래스의 constructor 생략 불가능**
+    * 서브 클래스를 호출하면선 전달한 인수 중에서 수퍼 클래스의 constructor에 전달할 필요가 있는 인수는 서브 클래스의 constructor에서 호출하는 super를 통해 전달해야 함
+    * [예제](./src/super_call_2.html)
+* super 호출 시 주의 사항
+    1. 서브 클래스에서 constructor를 생략하지 않는 경우, 서브 클래스의 constructor에서는 반드시 super를 호출해야 한다.
+    2. 서브 클래스의 constructor에서 super를 호출하기 전에는 this를 참조할 수 없다.
+    3. super는 반드시 서브 클래스의 constructor에서만 호출한다.
+
+#### 5.2 supoer 참조
+* 수퍼 클래스의 메서드를 호출 가능
+
+1. 서브 클래스의 프로토타입 메서드 내에서 super.sayHi는 수퍼 클래스의 프로토타입 메서드 sayHi를 가리킨다. ([예제](./src/super_refer_1.html))
+    * Base.prototype.sayHi를 호출할 때 call 메서드를 사용해 this를 전달해야 한다.
+        * [예제](./src/super_refer_2.html)
+    * 메서드 내부 슬롯 [ [ HomeObject ] ] 를 가지며, 자신을 바인딩하고 있는 객체를 가리킨다.
+    ```javascript
+    // 의사 코드 표현
+    super = Object.getPrototypeOf([[HomeObject]])
+    ```
+    * 주의 : ES6 메서드 축약 표현으로 정의된 함수만이 [ [ HomeObject ] ]를 갖는다.
+        * 즉, [ [ HomeObject ] ]를 가지는 함수만이 super를 참조할 수 있다.
+    * super 참조는 수퍼 클래스의 메서드를 참조하기 위해 사용하므로 서브 클래스의 메서드에서 사용해야 한다.
+    * 객체 리터럴에서도 super를 참조를 사용할 수 있다.
+        * [예제](./src/super_refer_3.html)
+
+2. 서브 클래스의 정적 메서드 내에서 super.sayHi는 수퍼 클래스의 정적 메서드 sayHi를 가리킨다. ([예제](./src/super_refer_4.html))
 
 ### 6. 상속 클래스의 인스턴스 생성 과정
 

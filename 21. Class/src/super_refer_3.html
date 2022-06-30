@@ -1,0 +1,21 @@
+<html>
+<body>
+    <script>
+        const base = {
+            name: 'Park',
+            sayHi() {
+                return `Hi, I'm ${this.name}`;
+            }
+        };
+
+        const derived = {
+            __proto__: base,
+            // ES6 메서드 축약 표현으로 정의한 메서드 == [[HomeObject]] 내부 슬롯을 가짐
+            sayHi() {
+                return `${super.sayHi()}. How are you doing?`;
+            }
+        };
+        console.log(derived.sayHi()); // Hi, I'm Park. How are you doing?
+    </script>
+</body> 
+</html>
