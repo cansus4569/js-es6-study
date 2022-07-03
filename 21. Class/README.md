@@ -632,5 +632,182 @@ console.log(derived); // Derived {}
 2. 서브 클래스의 정적 메서드 내에서 super.sayHi는 수퍼 클래스의 정적 메서드 sayHi를 가리킨다. ([예제](./src/super_refer_4.html))
 
 ### 6. 상속 클래스의 인스턴스 생성 과정
+#### 6.1 서브클래스의 super 호출
+* 자바스크립트 엔진은 클래스를 평가할 때 수퍼클래스와 서브클래스를 구분하기 위해 "base" 또는 "derived"를 값으로 갖는 내부 슬롯 [ [ ConstructorKind ] ]를 갖는다.
+    * 상속 받지 않는 클래스(그리고 생성자 함수) : [ [ ConstructorKind ] ] = base
+    * 다른 클래스를 상속 받는 서브클래스 : [ [ ConstructorKind ] ] = derived
+    * new 연산자와 함께 호출되었을 때 동작 구분된다.
+
+* 다른 클래스를 상속받지 않는 클래스(그리고 생성자 함수)는 new 연산자와 함께 호출되었을 때 암묵적으로 빈 객체, 즉 인스턴스를 생성하고 이를 this에 바인딩한다.
+* **서브클래스는 자신이 직접 인스턴스를 생성하지 않고 수퍼클래스에게 인스턴스 생성을 위임한다.**
+    * **서브클래스의 constructor에서 반드시 super를 호출해야하는 이유**
+
+* 서브클래스 constructor 내부에 super 호출이 없으면 에러가 발생
+    * 실제로 인스턴스를 생성하는 주체는 수퍼클래스이기 때문
+
+#### 6.2 수퍼클래스의 인스턴스 생성과 this 바인딩
+* 수퍼클래스의 constructor 내부의 코드가 실행되기 이전에 암묵적으로 빈 객체를 생성함
+* 빈 객체가 바로(아직 완성되지는 않았지만) 클래스가 생성한 인스턴스이다.
+* 암묵적으로 생성된 빈 객체, 즉 인스턴스는 this에 바인딩된다.
+* 수퍼클래스의 constructor 내부의 this는 생성된 인스턴스를 가리킨다.
+
+```javascript
+// 수퍼클래스
+class Rectangle {
+    constructor(width, height) {
+        // 암묵적으로 빈 객체, 즉 인스턴스가 생성되고 this에 바인딩된다.
+        console.log(this); // ColorRectangle {}
+        // new 연산자와 함께 호출된 함수, 즉 new.target은 ColorRectangle 이다.
+        console.log(new.target); // ColorRectangle
+
+        // 생성된 인스턴스의 프로토타입으로 ColorRectangle.prototype이 설정된다.
+        console.log(Obejct.getPrototypeOf(this) === Color.Rectangle.prototype); // true
+        console.log(this instanceof ColorRectangle); // true
+        console.log(this instanceof Rectangle); // true
+    }
+}
+```
+* 이때 인스턴스는 수퍼클래스가 생성한 것이다.
+* new 연산자와 함께 호출된 함수를 가리키는 new.target은 서브클래스를 가리킨다.
+* **인스턴스는 new.target이 가리키는 서브클래스가 생성한 것으로 처리된다.**
+
+#### 6.3 수퍼 클래스의 인스턴스 초기화
+* 수퍼클래스의 constructor가 실행되어 this에 바인딩되어 있는 인스턴스를 초기화한다.
+* this에 바인딩되어 있는 인스턴스에 프로퍼티를 추가하고 constructor가 인수로 전달받은 초기값으로 인스턴스의 프로퍼티를 초기화한다.
+```javascript
+// 수퍼클래스
+class Rectangle {
+    constructor(width, height) {
+        // 암묵적으로 빈 객체, 즉 인스턴스가 생성되고 this에 바인딩된다.
+        console.log(this); // ColorRectangle {}
+        // new 연산자와 함께 호출된 함수, 즉 new.target은 ColorRectangle 이다.
+        console.log(new.target); // ColorRectangle
+
+        // 생성된 인스턴스의 프로토타입으로 ColorRectangle.prototype이 설정된다.
+        console.log(Obejct.getPrototypeOf(this) === Color.Rectangle.prototype); // true
+        console.log(this instanceof ColorRectangle); // true
+        console.log(this instanceof Rectangle); // true
+
+        // 인스턴스 초기화
+        this.width = width;
+        this.height = height;
+
+        console.log(this); // ColorRectangle { width: 2, height: 4 }
+    }
+}
+```
+
+#### 6.4 서브클래스의 constructor로의 복귀와 this 바인딩
+* super의 호출이 종료되고 제어 흐름이 서브클래스 constructor로 돌아온다.
+* **super가 반환한 인스턴스가 this에 바인딩된다.**
+* **서브클래스는 별도의 인스턴스를 생성하지 않고 super가 반환한 인스턴스를 this에 바인딩하여 그대로 사용한다.**
+```javascript
+class ColorRectangle extends Rectangle {
+    constructor(width, height, color) {
+        super(width, height);
+
+        // super가 반환한 인스턴스가 this에 바인딩된다.
+        console.log(this); // ColorRectangle {width: 2, heigth: 4}
+    }
+}
+```
+* **super가 호출되지 않으면 인스턴스가 생성되지 않으며, this 바인딩도 할 수 없다.**
+* **서브클래스의 constructor에서 super를 호출하기 전에는 this를 참조할 수 없는 이유가 이러한 것 때문**
+* `결론 : 서브클래스 constructor 내부의 인스턴스 초기화는 반드시 super 호출 이후에 처리되어야 한다.`
+
+#### 6.5 서브 클래스의 인스턴스 초기화
+* super 호출 이후, 서브클래스의 constructor에 기술되어 있는 인스턴스 초기화가 실행된다.
+* 즉, this에 바인딩되어 있는 인스턴스에 프로퍼티를 추가하고 constructor가 인수로 전달받은 초기값으로 인스턴스의 프로퍼티를 초기화한다.
+
+#### 6.6 인스턴스 반환
+* 클래스의 모든 처리가 끝나면 완성된 인스턴스가 바인딩된 this가 암묵적으로 반환된다.
+```javascript
+class ColorRectangle extends Rectangle {
+    constructor(width, height, color) {
+        super(width, height);
+
+        // super가 반환한 인스턴스가 this에 바인딩된다.
+        console.log(this); // ColorRectangle {width: 2, heigth: 4}
+
+        // 인스턴스 초기화
+        this.color = color;
+
+        // 완성된 인스턴스가 바인딩된 this가 암묵적으로 반환된다.
+        console.log(this); // ColorRectangle { width: 2, heigth: 4, color: "red" }
+    }
+}
+```
 
 ### 7. 표준 빌트인 생성자 함수 확장
+* extends 키워드 다음에는 클래스뿐만 아니라 [ [ Construct ] ] 내부 메서드를 갖는 함수 객체로 평가될 수 있는 모든 표현식을 사용할 수 있다.
+* 표준 빌트인 객체(String, Number, Array)도 [ [ Construct ] ] 내부 메서드를 갖는 생성자 함수이므로 extends 키워드를 사용하여 확장할 수 있다.
+
+```javascript
+// Array 생성자 함수를 상속받아 확장한 MyArray
+class MyArray extends Array {
+    // 중복된 배열 요소를 제거하고 반환한다: [1, 1, 2, 3] => [1, 2, 3]
+    uniq() {
+        return this.filter((v, i, self) => self.indexOf(v) === i);
+    }
+
+    // 모든 배열 요소의 평균을 구한다: [1, 2, 3] => 2
+    average() {
+        return this.reduce((pre, cur) => pre + cur, 0) / this.length;
+    }
+}
+
+const myArray = new MyArray(1, 1, 2, 3);
+console.log(myArray); // MyArray(4) [1, 1, 2, 3]
+
+// MyArray.prototype.uniq 호출
+console.log(myArray.uniq()); // MyArray(3) [1, 2, 3]
+// MyArray.prototype.average 호출
+console.log(myArray.average()); // 1,75
+```
+
+* Array 생성자 함수를 상속받아 확장한 MyArray 클래스가 생성한 인스턴스는 Array.prototype과 MyArray.prototype의 모든 메서드를 사용할 수 있다.
+
+* 주의할 것
+    * Array.prototype의 메서드 중에서 map, filter와 같이 새로운 배열을 반환하는 메서드가 MyArray 클래스의 인스턴스를 반환한다는 것
+    ```javascript
+    console.log(myArray.filter(v => v % 2) instanceof MyArray); // true
+    ```
+
+* 만약 새로운 배열을 반환하는 메서드가 MyArray 클래스의 인스턴스를 반환하지 않고 Array의 인스턴스를 반환하면 MyArray 클래스의 메서드와 메서드 체이닝이 불가능하다.
+```javascript
+// 메서드 체이닝
+// [1, 1, 2, 3] => [1, 1, 3] => [1, 3] => 2
+console.log(myArray.filter(v => v % 2).uniq().average()); // 2
+```
+* myArray.filter 반환 인스턴스 = MyArray 클래스 생성한 인스턴스
+* uniq 메서드가 반환하는 인스턴스도 MyArray 타입
+* uniq 메서드가 반환하는 인스턴스로 average 메서드를 연이어 호출(메서드 체이닝)할 수 있다.
+
+* 만약 **uniq 메서드**가 **Array가 생성한 인스턴스를 반환**하게 하려면 `Symbol.species`를 사용하여 **정적 접근자 프로퍼티를 추가**한다.
+
+```javascript
+// Array 생성자 함수를 상속받아 확장한 MyArray
+class MyArray extends Array {
+    // 모든 메서드가 Array 타입의 인스턴스를 반환하도록 한다.
+    static get [Symbol.species]() { return Array; }
+
+    // 중복된 배열 요소를 제거하고 반환한다: [1, 1, 2, 3] => [1, 2, 3]
+    uniq() {
+        return this.filter((v, i, self) => self.indexOf(v) === i);
+    }
+
+    // 모든 배열 요소의 평균을 구한다: [1, 2, 3] => 2
+    average() {
+        return this.reduce((pre, cur) => pre + cur, 0) / this.length;
+    }
+}
+const myArray = new MyArray(1, 1, 2, 3);
+
+console.log(myArray.uniq() instanceof MyArray); // false
+console.log(myArray.uniq() instanceof Array); // true
+
+// 메서드 체이닝
+// uniq 메서드는 Array 인스턴스를 반환하므로 average 메서드를 호출할 수 없다.
+console.log(myArray.uniq().average());
+// TypeError: myArray.uniq(...).average is not a function
+```
