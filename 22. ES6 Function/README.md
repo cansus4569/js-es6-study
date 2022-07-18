@@ -130,12 +130,142 @@ const derived = {
 * 메서드를 정의할 때 프로퍼티 값으로 익명 함수 표현식을 할당하는 ES6 이전의 방식은 사용하지 않는 것이 좋다.
 
 ## 화살표 함수
-
+* 화살표 함수는 function 키워드 대신 화살표(=>, fat arrow)를 사용하여 기존의 함수 정의 방식보다 간략하게 함수를 정의할 수 있음
+* 화살표 함수는 콜백 함수 내부에서 this가 전역 객체를 가리키는 문제를 해결하기 위한 대안으로 유용하다.
 ### 1. 화살표 함수 정의
-
+* 함수 정의
+    * 함수 선언문으로 정의할 수 없고 함수 표현식으로 정의해야 한다.
+    * 호출 방식은 기존 함수와 동일하다.
+    ```javascript
+    const multiply = (x, y) => x * y;
+    multiply(2, 3); // 6
+    ```
+* 매개변수 선언
+    * 매개변수가 여러 개인 경우 소괄호 ( ) 안에 매개변수를 선언한다.
+    * 매개변수가 한 개인 경우 소괄호 ( ) 를 생략할 수 있다.
+    * 매개변수가 없는 경우 소괄호 ( ) 를 생략할 수 없다.
+    ```javascript
+    const a = (x, y) => { ... };
+    const b = x => { ... };
+    const c = () => { ... };
+    ```
+* 함수 몸체 정의
+    * 함수 몸체가 하나의 문으로 구성된다면 함수 몸체를 감싸는 중괄호 { } 를 생략할 수 있다.
+    * 이때 함수 몸체 내부의 문이 값으로 평가될 수 있는 **표현식인 문**이라면 암묵적으로 반환된다.
+    ```javascript
+    const power = x => x ** 2;
+    power(2); // 4
+    // 위와 동일한 표현
+    const power = => { return x ** 2; };
+    ```
+    * 중괄호 { }를 생략한 경우 함수 몸체 내부의 문이 표현식이 아닌 문이라면 에러가 발생한다.
+    * 표현식이 아닌 문은 반환할 수 없기 때문
+    ```javascript
+    const arrow = () => const x = 1; // SyntaxError: Unexpected token 'const'
+    // 위 표현은 다음과 같이 해석된다.
+    const arrow = () => { return const x = 1; };
+    // 중괄호 생략 못함
+    const arrow = () => { const x = 1; };
+    ```
+    * 객체 리터럴을 반환하는 경우 객체 리터럴을 소괄호 ( )로 감싸 주어야 한다.
+    ```javascript
+    const create = (id, content) => ({ id, content });
+    create(1, 'Javascript'); // { id: 1, content: "Javascript" }
+    // 위 표현은 다음과 동일하다
+    const create = (id, content) => { return { id, content }; };
+    ```
+    * 객체 리터럴을 소괄호 ( )로 감싸지 않으면 객체 리터럴의 중괄호 { }를 함수 몸체를 감싸는 중괄호 { }로 잘못 해석한다.
+    ```javascript
+    // { id, content } 를 함수 몸체 내의 쉼표 연산자문으로 해석한다.
+    const create = (id, content) => { id, content };
+    create(1, 'Javascript'); // undefined
+    ```
+    * 함수 몸체가 여러 개의 문으로 구성된다면 함수 몸체를 감싸는 중괄호 { }를 생략할 수 없다.
+    * 반환값이 있다면 명시적으로 반환해야 한다.
+    ```javascript
+    const sum = (a, b) => {
+        const result = a + b;
+        return result;
+    }
+    ```
+    * 화살표 함수는 즉시 실행 함수로 사용할 수 있다.
+    ```javascript
+    const person = (name => ({
+        sayHi() { return `Hi? My name is ${name}.`; }
+    }))('Park');
+    console.log(person.sayHi()); // Hi? My name is Park.
+    ```
+    * 화살표 함수도 일급 객체이므로 고차 함수에 인수로 전달할 수 있다.
+    * 콜백 함수로서 정의할 때 유용하다.
+    ```javascript
+    // ES5
+    [1, 2, 3].map(function (v) {
+        return v * 2;
+    });
+    // ES6
+    [1, 2, 3].map(v => v * 2); // [ 2, 4, 6 ]
+    ```
 ### 2. 화살표 함수와 일반 함수의 차이
 
+#### 2.1 화살표 함수는 인스턴스를 생성할 수 없는 non-construct 이다.
+```javascript
+const Foo = () => {};
+// 화살표 함수는 생성자 함수로 호출할 수 없다.
+new Foo(); // TypeError: Foo is not a constructor
+```
+* 화살표 함수는 인스턴스를 생성할 수 없으므로 prototype 프로퍼티가 없고 프로토타입도 생성하지 않는다.
+```javascript
+const Foo = () => {};
+// 화살표 함수는 prototype 프로퍼티가 없다.
+Foo.hasOwnProperty('prototype'); // false
+```
+
+#### 2.2 중복된 매개변수 이름을 선언할 수 없다.
+* 일반 함수는 중복된 매개변수 이름을 선언해도 에러가 발생하지 않는다.
+```javascript
+function normal(a, a) { return a + a; }
+console.log(normal(1, 2)); // 4
+```
+* 단, strict mode에서 중복된 매개변수 이름을 선언하면 에러가 발생한다.
+```javascript
+'use strict';
+function normal(a, a) { return a + a; }
+// SyntaxError: Duplicate parameter name not allowed in this context
+```
+* 화살표 함수에서도 중복된 매개변수 이름을 선언하면 에러가 발생한다.
+```javascript
+const arrow = (a, a) => a + a;
+// SyntaxError: Duplicate parameter name not allowed in this context
+```
+
+#### 2.3 화살표 함수는 함수 자체의 this, arguments, super, new.target 바인딩을 갖지 않는다.
+* 화살표 함수 내부에서 this, arguments, super, new.target 을 참조하면 스코프 체인을 통해 상위 스코프의 this, arguments, super, new.target을 참조한다.
+* 만약 화살표 함수와 화살표 함수가 중첩되어 있다면 상위 화살표 함수에도 this, arguments, super, new.target 바인딩이 없으므로 스코프 체인 상에서 가장 가까운 상위 함수 중에서 화살표 함수가 아닌 함수의 this, arguments, super, new.target을 참조한다.
 ### 3. this
+* 화살표 함수가 일반 함수와 구별되는 가장 큰 특징은 바로 this다.
+* 콜백 함수 내부의 this가 외부 함수의 this와 다르기 때문에 발생하는 문제를 해결하기 위해 의도적으로 설계된 것이다.
+
+* ES6에서는 화살표 함수를 사용하여 "콜백 함수 내부의 this 문제"를 해결할 수 있다.
+```javascript
+class Prefixer {
+    constructor(prefix) {
+        this.prefix = prefix;
+    }
+    add(arr) {
+        return arr.map(item => this.prefix + item);
+    }
+}
+const prefixer = new Prefixer('-webkit-');
+console.log(prefixer.add(['transition', 'user-select']));
+// ['-webkit-transition', '-webkit-user-select']
+```
+* **화살표 함수는 함수 자체의 this 바인딩을 갖지 않는다. 따라서 화살표 함수 내부에서 this를 참조하면 상위 스코프의 this를 그대로 참조한다. 이를 lexcial this라 한다.**
+```javascript
+// 화살표 함수는 상위 스코프의 this를 참조한다.
+() => this.x;
+// 익명 함수에 상위 스코프의 this를 주입한다. 위 화살표 함수와 동일하게 동작한다.
+(function () { return this.x; }).bind(this);
+```
 
 ### 4. super
 
