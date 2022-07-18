@@ -266,13 +266,119 @@ console.log(prefixer.add(['transition', 'user-select']));
 // 익명 함수에 상위 스코프의 this를 주입한다. 위 화살표 함수와 동일하게 동작한다.
 (function () { return this.x; }).bind(this);
 ```
+* 화살표 함수와 화살표 함수가 중첩되어 있다면 상위 화살표 함수에도 this 바인딩이 없으므로 스코프 체인 상에서 **가장 가까운 상위 함수 중에서 화살표 함수가 아닌 함수의 this를 참조**한다.
+```javascript
+// 중첩 함수 foo의 상위 스코프는 즉시 실행 함수다.
+// 따라서 화살표 함수 foo의 this는 상위 스코프인 즉시 실행 함수의 this를 가리킨다.
+(function () {
+    const foo = () => console.log(this);
+    foo();
+}).call( { a: 1 }); // { a: 1 }
+// bar 함수는 화살표 함수를 반환한다.
+// bar 함수가 반환한 화살표 함수의 상위 스코프는 화살표 함수 bar 다.
+// 하지만 화살표 함수는 함수 자체의 this 바인딩을 갖지 않으므로 bar 함수가 반환한
+// 화살표 함수 내부에서 참조하는 this는 화살표 함수가 아닌 즉시 실행 함수의 this를 가리킨다.
+(function () {
+    const bar = () => () => console.log(this);
+    bar()();
+}).call({ a: 1 }); // { a: 1 }
+```
+* 화살표 함수가 전역 함수라면 화살표 함수의 this는 전역 객체를 가리킨다.
+```javascript
+// 전역 함수 foo의 상위 스코프는 전역이므로 화살표 함수 foo의 this는 전역 객체를 가리킨다.
+const foo = () => console.log(this);
+foo(); // window
+```
+* 화살표 함수는 함수 자체의 this 바인딩을 갖지 않기 때문에 Function.prototype.call, Function prototype.apply, Function.prototype.bind 메서드를 사용해도 화살표 함수 내부의 this를 교체할 수 없고 언제나 상위 스코프의 this 바인딩을 참조한다.
+```javascript
+window.x = 1;
+const normal = function () { return this.x; };
+const arrow = () => this.x;
+console.log(normal.call({ x: 10 })); // 10
+console.log(arrow.call({ x: 10 })); // 1
+```
+* 메서드를 화살표 함수로 정의하는 것은 피해야 한다.
+* 메서드 정의할 때는 ES6 메서드 축약 표현으로 정의한 ES6 메서드를 사용하는 것이 좋다.
+```javascript
+// 일반적인 메서드 정의 (Bad)
+const person = {
+    name: 'Park',
+    sayHi: () => console.log('Hi' + this.name);
+}
+person.sayHi(); // Hi
+// ES6 메서드 축약 표현으로 정의 (Good)
+const person = {
+    name: 'Park',
+    sayHi() {
+        console('Hi' + this.name);
+    }
+}
+person.sayHi(); // Hi Park
+```
+* 화살표 함수로 프로토타입 객체의 프로퍼티 할당하는 경우도 동일한 문제 발생함
+```javascript
+function Person(name) {
+    this.name = name;
+}
+Person.prototype.sayHi = () => console.log('Hi' + this.name); // Hi
+```
+* 클래스 필드 정의 제안을 사용하여 클래스 필드에 화살표 함수를 할당할 수도 있다.
+* 하지만, 프로토타입 메서드가 아닌 인스턴스 메서드가 된다.
+* ES6 메서드 축약 표현으로 정의한 ES6 메서드를 사용하는 것이 좋다.
+```javascript
+// Bad
+class Person {
+    // 클래스 필드 정의 제안
+    name = 'Park';
+    sayHi = () => console.log('Hi' + this.name);
+}
+const person = new Person();
+person.sayHi(); // Hi Park
 
+// Good
+class Person {
+    name = 'Park';
+    sayHi() { console.log('Hi ' + this.name); }
+}
+const person = new Person();
+person.sayHi(); // Hi Park
+```
 ### 4. super
-
+* 화살표 함수는 함수 자체의 super 바인딩을 갖지 않는다.
+* 화살표 함수 내부에서 super를 참조하면 상위 스코프의 super를 참조한다.
+```javascript
+class Base {
+    constructor(name) {
+        this.name = name;
+    }
+    sayHi() {
+        return 'Hi ' + this.name;
+    }
+}
+class Derived extends Base {
+    // 화살표 함수의 super는 상위 스코프인 constructor의 super를 가리킨다.
+    sayHi = () => `${super.sayHi()} how are you doing?`;
+}
+const derived = new Derived('Park');
+console.log(derived.sayHi()); // Hi Park how are you doing?
+```
 ### 5. arguments
+* 화살표 함수는 함수 자체의 arguments 바인딩을 갖지 않는다.
+* 화살표 함수 내부에서 arguments를 참조하면 상위 스코프의 arguments를 참조한다.
+* 화살표 함수로 가변 인자 함수를 구현해야 할 때는 반드시 Rest 파라미터를 사용해야 한다.
+```javascript
+(function () {
+    // 화살표 함수 foo의 arguments는 상위 스코프인 즉시 실행 함수의 arguments를 가리킨다.
+    const foo = () => console.log(arguments); // [Arguments] { '0': 1, '1': 2 }
+    foo(3, 4);
+}(1, 2));
 
+// 화살표 함수 foo의 arguments는 상위 스코프인 전역의 arguments를 가리킨다.
+// 하지만 전역에는 arguments 객체가 존재하지 않는다. arguments 객체는 함수 내부에서만 유효하다.
+const foo = () => console.log(arguments);
+foo(1, 2); // ReferenceError: arguments is not defined
+```
 ## Rest 파라미터
-
 ### 1. 기본 문법
 * 매개변수 이름 앞에 3개의 점 ... 을 붙여서 정의한 매개변수를 의미
 * **Rest 파라미터는 함수에 전달된 인수들의 목록을 배열로 전달받는다.**
