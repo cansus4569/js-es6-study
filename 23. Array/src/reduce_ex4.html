@@ -1,0 +1,16 @@
+<html>
+<body>
+    <script>
+        const values = [1, [2, 3], 4, [5, 6]];
+
+        const flatten = values.reduce((acc, cur) => acc.concat(cur), []);
+        // [1] => [1, 2, 3] => [1, 2, 3, 4] => [1, 2, 3, 4, 5, 6]
+        console.log(flatten); // [1, 2, 3, 4, 5, 6]
+
+        // ES10에서 도입된 Array.prototype.flat 메서드 사용 방법
+        console.log([1, [2, 3, 4, 5]].flat()); // [1, 2, 3, 4, 5]
+        // 인수 2는 중첩 배열을 평탄화하기 위한 깊이 값이다.
+        console.log([1, [2, 3, [4, 5]]].flat(2)); // [1, 2, 3, 4, 5]
+    </script>
+</body> 
+</html>

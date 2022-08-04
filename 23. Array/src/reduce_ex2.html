@@ -1,0 +1,15 @@
+<html>
+<body>
+    <script>
+        const values = [1, 2, 3, 4, 5];
+
+        const max = values.reduce((acc, cur) => (acc > cur ? acc : cur), 0);
+        console.log(max); // 5
+
+        // Math.max 메서드 사용
+        const max2 = Math.max(...values);
+        // var max = Math.max.apply(null, values);
+        console.log(max2); // 5
+    </script>
+</body> 
+</html>
