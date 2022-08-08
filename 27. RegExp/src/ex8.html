@@ -1,0 +1,21 @@
+<html>
+<body>
+    <script>
+        /*
+            검색 대상 문자열에 특수 문자가 포함되어 있는지 검사
+
+            특수 문자는 A-Za-z0-9 이외의 문자이다.
+        */
+        const target = 'abc#123';
+
+        console.log((/[^A-Za-z0-9]/gi).test(target)); // true
+
+        // 다음 방식으로 대체해 사용할 수도 있다.
+        // 이 방식은 특수 문자를 선택적으로 검사할 수 있다는 장점이 있다.
+        console.log((/[\{\}\[\]\/?.,;:|\)*~`!^/-_+<>@\#$%&\\\=\(\'\"]/gi).test(target)); // true
+
+        // 특수 문자를 제거할 때는 String.prototype.replace 메서드를 사용
+        console.log(target.replace(/[^A-Za-z0-9]/gi, '')); // abc123
+    </script>
+</body> 
+</html>

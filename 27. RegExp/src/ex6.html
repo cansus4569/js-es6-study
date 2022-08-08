@@ -1,0 +1,12 @@
+<html>
+<body>
+    <script>
+        /*
+            검색 대상 문자열이 메일 주소 형식에 맞는지 검사
+        */
+        const email = 'test@gmail.com';
+
+        console.log(/^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/.test(email)); // true
+    </script>
+</body> 
+</html>

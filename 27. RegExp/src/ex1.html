@@ -1,0 +1,16 @@
+<html>
+<body>
+    <script>
+        /*
+            검색 대상 문자열이 'http://' 또는 'https://' 로 시작하는지 검사
+        */
+        const url = 'https://example.com';
+
+        // 첫 번째 방법
+        console.log(/^https?:\/\//.test(url)); // true
+
+        // 두 번째 방법
+        console.log(/^(http|https):\/\//.test(url)); // true
+    </script>
+</body> 
+</html>
