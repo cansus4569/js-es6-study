@@ -273,14 +273,125 @@ Node.prototype.nodeName|노드의 이름을 문자열로 반환</br> - 요소 �
 ## 요소 노드의 텍스트 조작
 
 ### 1. nodeValue
+* `Node.prototype.nodeValue` 프로퍼티는 setter와 getter 둘다 존재하는 접근자 프로퍼티
+    * 참조와 할당 모두 가능
+* 노드 객체의 nodeValue 프로퍼티를 **참조**하면 노드 객체의 값을 반환
+    * 노드 객체의 값?  텍스트 노드의 텍스트
+    * 텍스트 노드가 아닌 문서 노드나 요소 노드의 nodeValue 프로퍼티를 참조하면 null 반환
+* 텍스트 노드의 nodeValue 프로퍼티에 값을 **할당**하면 텍스트 노드의 값, 텍스트 변경 가능
+    * 요소 노드의 텍스트를 변경하려면 다음과 같은 순서 처리 필요
+        1. 텍스트를 변경할 요소 노드 취득
+        2. 요소 노드의 텍스트 노드 탐색
+            * 텍스트 노드는 요소 노드의 자식 노드이므로 firstChild 프로퍼티를 사용하여 탐색
+        3. 탐색한 텍스트 노드의 nodeValue 프로퍼티를 사용하여 텍스트 노드의 값을 변경
 
 ### 2. textContent
+* `Node.prototype.textContent` 프로퍼티는 setter와 getter 둘다 존재하는 접근자 프로퍼티
+* 요소 노드의 textContent 프로퍼티를 **참조**하면 요소 노드의 콘텐츠 영역(시작 태그와 종료 태그 사이) 내의 텍스트를 모두 반환
+    * 요소 노드의 childNodes 프로퍼티가 반환한 모든 노드들의 텍스트 노드의 값, 텍스트를 모두 반환
+    * HTML 마크업은 무시
+* 요소 노드의 textContent 프로퍼티에 문자열을 **할당**하면 요소 노드의 모든 자식 노드가 제거되고 할당한 문자열이 텍스트로 추가된다.
+    * 할당한 문자열에 HTML 마크업이 포함되어 있더라도 문자열 그대로 인식되어 텍스트로 취급됨 (HTML 마크업 파싱되지 않음)
+
+* 참고 : textContent 프로퍼티와 유사한 동작을 하는 innerText 프로퍼티가 있다.
+* innerText 프로퍼티는 다음과 같은 이유로 사용하지 않는 것이 좋다.
+    * innerText 프로퍼티는 CSS에 순종적이다.
+        * 예) innerText 프로퍼티는 CSS에 의해 비표시(visibility: hidden;)로 지정된 요소 노드의 텍스트를 반환하지 않는다.
+    * innerText 프로퍼티는 CSS를 고려해야 하므로 textContent 프로퍼티보다 느리다.
 
 ## DOM 조작
+* 새로운 노드를 생성하여 DOM에 추가하거나 기존 노드를 삭제 또는 교체하는 것
+* DOM 조작에 의해 리플로우와 리페인트가 발생하는 원인이 되므로 성능에 영향을 준다.
+* DOM 조작은 성능 최적화를 위해 주의해서 다루어야 한다.
 
 ### 1. innerHTML
+* `Element.prototype.innerHTML` 프로퍼티는 setter와 getter 둘다 존재하는 접근자 프로퍼티
+* 요소 노드의 innerHTML 프로퍼티를 참조하면 요소 노드의 콘텐츠 영역(시작 태그와 종료 태그 사이)내에 포함된 모든 HTML 마크업을 문자열로 반환
+```
+textContent와 innerHTML 다른점
+ - textContent는 HTML 마크업을 무시하고 텍스트만 반환
+ - innerHTML는 HTML 마크업이 포함된 문자열을 그대로 반환
+```
+* 요소 노드의 innerHTML 프로퍼티에 문자열을 할당하면 요소 노드의 모든 자식 노드가 제거되고 할당한 문자열에 포함되어 있는 HTML 마크업이 파싱되어 요소 노드의 자식 노드로 DOM에 반영
+
+* innerHTML 프로퍼티에 할당 기능으로 **크로스 사이트 스크립팅 공격**(XSS)에 취약해져 위험하다
+```javascript
+// 스크립트 태그를 삽입하여 사용자 정의 자바스크립트 실행하도록 함
+document.getElementById('foo').innerHTML = '<script>alert(document.cookie)</script>';
+```
+* HTML5 에서는 innerHTML 프로퍼티로 삽입된 script 요소 내의 자바스크립트 코드를 실행하지 않도록 변경됨
+* 하지만 script 요소 없이도 크로스 사이트 스크립팅 공격은 가능하다. (모던 브라우저에서도 동작 한다.)
+```javascript
+// 에러 이벤트를 강제로 발생시켜서 자바스크립트 코드가 실행되도록 한다.
+document.getElementById('foo').innerHTML = '<img src="x" onerror="alert(document.cookie)">';
+```
+
+* 단점1 : innerHTML 프로퍼티를 사용한 DOM 조작은 구현이 간단하고 직관적이라는 장점이 있지만 XSS 공격에 취약한 단점도 있음
+* **HTML 새니티제이션(HTML sanitization)**
+    * 사용자로부터 입력받은 데이터에 의해 발생할 수 있는 크로스 사이트 스크립팅 공격을 예방하기 위해 잠재적 위험을 제거하는 기능
+    * DOMPurify 라이브러리를 사용하는 것을 권장
+    ```javascript
+    // DOMPurify는 잠재적 위험을 내포한 HTML 마크업을 새니티제이션(살균)하여 잠재적 위험을 제거한다.
+    DOMPurify.sanitize('<img src="x" onerror="alert(document.cookie)">');
+    // => <img src="x">
+    ```
+
+* 단점2 : 요소 노드의 innerHTML 프로퍼티에 HTML 마크업 문자열을 할당하는 경우 요소 노드의 모든 자식 노드를 제거하고 할당한 HTML 마크업 문자열을 파싱하여 DOM 변경
+* 아래 예제 처럼 기존 li.apple 수정없이 li.banana만 새롭게 추가하고 싶지만  
+innerHTML는 무조건 모든 자식 노드를 제거하고 새롭게 요소 노드 li.apple와 li.banana를 생성하여  
+fruits 요소의 자식 요소로 추가한다.
+* 이러한 방식은 효율적이지 않다.
+```html
+<ul id="fruits">
+    <li id="apple">Apple</li>
+</ul>
+<script>
+    const $fruits = document.getElementById('fruits');
+    // 기존 fruits 요소에 자식 요소로 추가 (과연..? 생각대로 될까?)
+    $fruits.innerHTML += '<li id="banana">Banana</li>';
+<script>
+```
+* 단점3 : 새로운 요소를 삽입할 때 삽입될 위치를 지정할 수 없다
+* 아래 예제에서 li.apple와 li.orange 사이에 새로운 요소를 삽입하고 싶지만 삽입 위치를 지정할 수 없다.
+```html
+<ul id="fruits">
+    <li id="apple">Apple</li>
+    <li id="orange">Orange</li>
+</ul>
+```
+* 결론 : 복잡하지 않은 요소를 새롭게 추가할 때는 유용함 / 기존 요소를 제거하지 않으면서 위치를 지정해 새로운 요소를 삽입해야 할 때는 사용하지 않는 것을 권장
 
 ### 2. insertAdjacentHTML 메서드
+* `Element.prototype.insertAdjacentHTML`(position, DOMString) 메서드는 기존 요소를 제거하지 않으면서 위치를 지정해 새로운 요소를 삽입
+* 두 번째 인수(DOMString)로 전달한 HTML 마크업 문자열을 파싱하고 그 결과로 생성된 노드를
+* 첫 번째 인수(position)로 전달한 위치에 삽입하여 DOM에 반영한다.
+    * beforebegin
+    * afterbegin
+    * beforeend
+    * afterend
+
+![insertAdjacentHTML drawio](https://user-images.githubusercontent.com/63139527/185050295-2cfcba25-77d1-40e7-9036-5e6cc3d5057a.png)
+```html
+<html>
+<!-- beforebegin -->
+<div id="foo">
+    <!-- afterbegin -->
+    text
+    <!-- beforeend -->
+</div>
+<!-- afterend -->
+</html>
+<script>
+    const $foo = document.getElementById('foo');
+
+    $foo.insertAdjacentHTML('beforebegin', '<p>beforebegin</p>');
+    $foo.insertAdjacentHTML('afterbegin', '<p>afterbegin</p>');
+    $foo.insertAdjacentHTML('beforeend', '<p>beforeend</p>');
+    $foo.insertAdjacentHTML('afterend', '<p>afterend</p>');
+</script>
+```
+* 기존의 자식 노드를 모두 제거하고 다시 처음부터 새롭게 자식 노드를 생성하여 자식 요소로 추가하는 innerHTML 프로퍼티보다 효율적이고 빠르다.
+* insertAdjacentHTML 메서드는 HTML 마크업 문자열을 파싱하므로 크로스 사이트 스크립팅 공격에 취약하다.
 
 ### 3. 노드 생성과 추가
 
@@ -315,3 +426,5 @@ Node.prototype.nodeName|노드의 이름을 문자열로 반환</br> - 요소 �
 ### 3. 요소에 적용되어 있는 CSS 스타일 참조
 
 ## DOM 표준
+* W3C(World Wide Web Consortium)과 WHATWG(Web Hyphertext Application Technology Working Group) 두 단체가 협력하면 공통된 표준을 만듬
+* 이후 구글, 애플, 마이크로소프트, 모질라로 구성된 4개의 주류 브라우저 벤더사가 주도하는 WHATWG이 단일 표준을 내놓기로 합의되었다.
