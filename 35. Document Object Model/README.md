@@ -628,10 +628,87 @@ $li.textContent = 'Banana';
 ```
 ## 어트리뷰트
 ### 1. 어트리뷰트 노드와 attributes 프로퍼티
+* HTML 요소는 여러 개의 어트리뷰트(속성)을 가질 수 있다.
+* HTML 어트리뷰트는 HTML 요소의 시작 태그에 `어트리뷰트 이름 = "어트리뷰트 값"` 형식으로 정의
+```html
+<input id="user" type="text" value="grape">
+```
+* 공통적으로 사용할 수 있는 어트리뷰트
+    * 글로벌 어트리뷰트
+        * id, class, style, title, lang, tabindex, draggable, hidden 등
+    * 이벤트 핸들러 어트리뷰트
+        * onclick, onchange, onfocus, onblur, oninput, onkeypress, onkeydown, onkeyup, onmouseover, onsubmit, onload 등
+* 특정 HTML 요소에 한정적으로 사용 가능한 어트리뷰트도 존재함
+    * ex) input 요소
+        * type, value, checked
+* HTML 어트리뷰트는 어트리뷰트 노드로 변환되어 요소 노드와 연결된다.
+    * HTML 어트리뷰트당 하나의 어트리뷰트 노드가 생성된다.
+    * 위 input 요소는 3개의 어트리뷰트가 있으므로 3개의 어트리뷰트 노드가 생성됨
+* 모든 어트리뷰트 노드의 참조는 유사 배열 객체이자 이터러블인 NamedNodeMap 객체에 담겨서 요소 노드의 attributes 프로퍼티에 저장된다.
+![attributes_properties drawio](https://user-images.githubusercontent.com/63139527/185865456-860f3f24-2ba2-4715-ada3-911ebaba5b5f.png)
+* attributes 프로퍼티는 getter만 존재하는 읽기 전용 접근자 프로퍼티이며, 요소 노드의 모든 어트리뷰트 노드의 참조가 담긴 NamedNodeMap 객체를 반환한다.
+```html
+<html>
+<body>
+    <input id="user" type="text" value="grape">
+    <script>
+        // 요소 노드의 attributes 프로퍼티는 요소 노드의 모든 어트리뷰트 노드의 참조가 담긴
+        // NamedNodeMap 객체를 반환한다.
+        const { attributes } = document.getElementById('user');
+        console.log(attributes);
+        // NamedNodeMap {0: id, 1: type, 2: value, id: id, type: type, value: value, length: 3}
 
+        // 어트리뷰트 값 취득
+        console.log(attributes.id.value); // user
+        console.log(attributes.type.value); // text
+        console.log(attributes.value.value); // grape
+    </script>
+</body> 
+</html>
+```
 ### 2. HTML 어트리뷰트 조작
+* `Element.prototype.getAttribute/setAttribute` 메서드를 사용하면 attributes 프로퍼티를 통하지 않고  
+요소 노드에서 메서드를 통해 직접 HTML 어트리뷰트 값을 취득하거나 변경할 수 있어 편리하다.
+    * 어트리뷰트 값 참조 : Element.prototype.getAttribute(attributeName)
+    * 어트리뷰트 값 변경 : Element.prototype.setAttribute(attributeName, attributeValue)
+* `Element.prototype.hasAttribute(attributeName)` 메서드는 특정 HTML 어트리뷰트가 존재하는 확인 
+* `Element.prototype.removeAttribute(attributeName)` 메서드는 특정 HTML 어트리뷰트 삭제 
 
+```html
+<!DOCTYPE html>
+    <body>
+        <input id="user" type="text" value="grape">
+        <script>
+            const $input = document.getElementById('user');
+
+            // value 어트리뷰트 취득
+            const inputValue = $input.getAttribute('value');
+            console.log(inputValue); // grape
+
+            // value 어트리뷰트 값을 변경
+            $input.setAttribute('value', 'apple');
+            console.log($input.getAttribute('value')); // apple
+
+            // value 어트리뷰트의 존재 확인
+            if($input.hasAttribute('value')) {
+                // value 어트리뷰트 삭제
+                $input.removeAttribute('value');
+            }
+            // value 어트리뷰트가 삭제됨
+            console.log($input.hasAttribute('value')); // false
+        </script>
+    </body>
+</html>
+```
 ### 3. HTML 어트리뷰트 vs DOM 프로퍼티
+
+#### 3.1 어트리뷰트 노드
+
+#### 3.2 DOM 프로퍼티
+
+#### 3.3 HTML 어트리뷰트와 DOM 프로퍼티의 대응 관계
+
+#### 3.4 DOM 프로퍼티 값의 타입
 
 ### 4. data 어트리뷰트와 dataset 프로퍼티
 
@@ -640,6 +717,10 @@ $li.textContent = 'Banana';
 ### 1. 인라인 스타일 조작
 
 ### 2. 클래스 조작
+
+#### 2.1 className
+
+#### 2.2 classList
 
 ### 3. 요소에 적용되어 있는 CSS 스타일 참조
 
