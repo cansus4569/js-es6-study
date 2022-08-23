@@ -762,19 +762,135 @@ $li.textContent = 'Banana';
 * **요소 노드는 2개의 상태, 즉 초기 상태와 최신 상태를 관리해야 한다.**
 * **요소 노드의 초기 상태는 어트리뷰트 노드가 관리하며, 요소 노드의 최신 상태는 DOM 프로퍼티가 관리한다.**
 #### 3.1 어트리뷰트 노드
-
+* **HTML 어트리뷰트로 지정한 HTML 요소의 초기 상태는 어트리뷰트 노드에서 관리한다.**
+    * 어트리뷰트 노드에서 관리하는 어트리뷰트 값은 사용자의 입력에 의해 상태가 변경되어도 변경되지 않고 HTML 요소의 초기 상태를 유지
+* 어트리뷰트 노드가 관리하는 초기 상태값을 참조 및 변경하려면 getAttribute/setAttribute 메서드를 사용해야 한다.
+    * getAttribute 메서드는 초기 상태 값을 참조한다.
+    * setAttribute 메서드는 초기 상태 값을 변경한다.
 #### 3.2 DOM 프로퍼티
-
+* **사용자가 입력한 최신 상태는 HTML 어트리뷰트에 대응하는 요소 노드의 DOM 프로퍼티가 관리한다.**
+* **DOM 프로퍼티는 사용자의 입력에 의한 상태 변화에 반응하여 언제나 최신 상태를 유지한다.**
+* DOM 프로퍼티에 값을 할당하는 것은 HTML 요소의 최신 상태 값을 변경하는 것을 의미한다.
+    * 즉, 사용자가 상태를 변경하는 행위와 같다.
+    * 이때 HTML 요소에 지정한 어트리뷰트 값에는 어떠한 영향도 주지 않는다.
+* 참고 : 모든 DOM 프로퍼티가 사용자의 입력에 의해 변경된 최신 상태를 관리하는 것은 아니다.
+* 예시
+    * input 요소의 id 어트리뷰트에 대응하는 id 프로퍼티는 사용자의 입력과 아무런 관계가 없음
+    * 사용자 입력에 의한 상태 변화와 관계없는 id 어트리뷰트와 id 프로퍼티는 항상 동일한 값을 유지함
 #### 3.3 HTML 어트리뷰트와 DOM 프로퍼티의 대응 관계
-
+* 대부분의 HTML 어트리뷰트는 HTML 어트리뷰트 이름과 동일한 DOM 프로퍼티와 1:1로 대응한다.
+* 단, 다음과 같이 HTML 어트리뷰트와 DOM 프로퍼티가 언제나 1:1로 대응하는 것은 아니며,  
+HTML 어트리뷰트 이름과 DOM 프로퍼티 키가 반드시 일치하는 것도 아니다.
+    * id 어트리뷰트와 id 프로퍼티는 1:1 대응하며, 동일한 값으로 연동한다.
+    * input 요소의 value 어트리뷰트는 value 프로퍼티와 1:1 대응한다.  
+    하지만, value 어트리뷰트는 초기 상태를, value 프로퍼티는 최신 상태를 갖는다.
+    * class 어트리뷰트는 className, classList 프로퍼티와 대응한다.
+    * for 어트리뷰트는 htmlFor 프로퍼티와 1:1 대응한다.
+    * td 요소의 colspan 어트리뷰트는 대응하는 프로퍼티가 존재하지 않는다.
+    * textContent 프로퍼티는 대응하는 어트리뷰트가 존재하지 않는다.
+    * 어트리뷰트 이름은 대소문자를 구별하지 않지만 대응하는 프로퍼티 키는 카멜 케이스를 따른다(maxlength -> maxLength)
 #### 3.4 DOM 프로퍼티 값의 타입
+* getAttribute 메서드로 취득한 어트리뷰트 값은 언제나 문자열이다.
+* 하지만 DOM 프로퍼티로 취득한 최신 상태 값은 문자열이 아닐 수도 있다.
+    * 예시
+        * checkbox 요소의 checked 어트리뷰트 값은 문자열이지만 checked 프로퍼티 값은 불리언 타입이다.
 
+```html
+<!DOCTYPE html>
+<html>
+<body>
+    <input type="checkbox" checked>
+    <script>
+        const $checkbox = document.querySelector('input[type=checkbox]');
+
+        // getAttribute 메서드로 취득한 어트리뷰트 값은 언제나 문자열이다.
+        console.log($checkbox.getAttribute('checked')); // ''
+
+        // DOM 프로퍼티로 취득한 최신 상태 값은 문자열이 아닐 수도 있다.
+        console.log($checkbox.checked); // true
+    </script>
+</body>
+</html>
+```
 ### 4. data 어트리뷰트와 dataset 프로퍼티
+* data 어트리뷰트와 dataset 프로퍼티를 사용하면 HTML 요소에 정의한 사용자 정의 어트리뷰트와 자바스크립트 간에 데이터를 교환할 수 있다.
+* data 어트리뷰트는 `data-` 접두사 다음에 임의의 이름을 붙여 사용한다.
+    * 예시 : data-user-id, data-role
+* data 어트리뷰트 값은 HTMLElement.dataset 프로퍼티로 취득할 수 있다.
+* dataset 프로퍼티는 HTML 요소의 모든 data 어트리뷰트의 정보를 제공하는 DOMStringMap 객체를 반환한다.
+* DOMStringMap 객체는 data 어트리뷰트의 data- 접두사 다음에 붙인 임의의 이름을 카멜 케이스로 변환한 프로퍼티를 가지고 있다.
+* data 어트리뷰트의 data- 접두사 다음에 존재하지 않는 이름을 키로 사용하여 dataset 프로퍼티에 값을 할당하면 HTML 요소에 data 어트리뷰트가 추가된다.
+    * 이때 dataset 프로퍼티에 추가한 카멜케이스(fooBar)의 프로퍼티 키는 data 어트리뷰트의 data- 접두사 다음에 케밥케이스(data-foo-bar)로 자동 변경되어 추가된다.
 
+```html
+<!DOCTYPE html>
+<html>
+<body>
+    <ul class="users">
+        <li id="1" data-user-id="7621" data-role="admin">Lee</li>
+        <li id="2" data-user-id="9524" data-role="subscriber">Kim</li>
+    </ul>
+    <script>
+        const users = [...document.querySelector('.users').children];
+
+        // user-id가 '7621'인 요소 노드를 취득한다.
+        const user = users.find(user => user.dataset.userId === '7621');
+        // user-id가 '7621'인 요소 노드에서 data-role의 값을 취득한다.
+        console.log(user.dataset.role); // "admin"
+
+        // user-id가 '7621'인 요소 노드의 data-role의 값을 변경한다.
+        user.dataset.role = 'subscriber';
+        // dataset 프로퍼티는 DOMStringMap 객체를 반환한다.
+        console.log(user.dataset); // DOMStringMap {userId: "7621", role: "subscriber"}
+
+        // user-id가 '7621'인 요소 노드에 새로운 data 어트리뷰트를 추가한다.
+        user.dataset.fooBar = 'test';
+        console.log(user.dataset);
+        /*
+            DOMStringMap {userId: "7621", role: "subscriber", fooBar: "test"}
+            => <li id="1" data-user-id="7621" data-role="subscriber" data-foo-bar="test">Lee</li>
+        */
+    </script>
+</body>
+</html>
+```
 ## 스타일
-
 ### 1. 인라인 스타일 조작
+* `HTMLElement.prototype.style` 프로퍼티는 setter와 getter 둘다 존재하는 접근자 프로퍼티로서 요소 노드의 **인라인 스타일**을 취득하거나 추가 또는 변경한다.
+* style 프로퍼티를 참조하면 CSSStyleDeclaration 타입의 객체를 반환한다.
+* CSSStyleDeclaration 객체는 다양한 CSS 프로퍼티에 대응하는 프로퍼티를 가지고 있으며, 이 프로퍼티에 값을 할당하면 해당 CSS 프로퍼티가 인라인 스타일로 HTML 요소에 추가되거나 변경된다.
+* CSS 프로퍼티는 케밥 케이스를 따른다.
+    * 예시 : background-color
+* CSSStyleDeclaration 객체의 프로퍼티는 카멜 케이스를 따른다.
+    * 예시 : backgroundColor
+* 케밥 케이스의 CSS 프로퍼티를 그대로 사용하려면 객체의 마침표 표기법 대신 대괄호 표기법을 사용한다.
+```javascript
+$div.style['background-color'] = 'yellow';
+```
+* 단위 지정이 필요한 CSS 프로퍼티의 값은 반드시 단위를 지정해야 한다. 생략하면 해당 CSS 프로퍼티는 적용되지 않는다.
+    * 예시 : px, em, % 등..
+```html
+<!DOCTYPE html>
+<html>
+<body>
+    <div style="color: red">Hello World</div>
+    <script>
+        const $div = document.querySelector('div');
 
+        // 인라인 스타일 취득
+        console.log($div.style); // CSSStyleDeclaration { 0: "color", ... }
+
+        // 인라인 스타일 변경
+        $div.style.color = 'blue';
+
+        // 인라인 스타일 추가
+        $div.style.width = '100px';
+        $div.style.height = '100px';
+        $div.style.backgroundColor = 'yellow';
+    </script>
+</body>
+</html>
+```
 ### 2. 클래스 조작
 
 #### 2.1 className
