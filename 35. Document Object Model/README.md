@@ -701,7 +701,66 @@ $li.textContent = 'Banana';
 </html>
 ```
 ### 3. HTML 어트리뷰트 vs DOM 프로퍼티
+* 요소 노드 객체에는 HTML 어트리뷰트에 대응하는 DOM 프로퍼티가 존재한다.
+    * 이 DOM 프로퍼티들은 HTML 어트리뷰트 값을 초기값으로 가지고 있다.
+* 예시
+    * `<input id="user" type="text" value="grape">` 
+    * 위 요소가 파싱되어 생성된 요소 노드 객체에는 id, type, value 어트리뷰트에
+    * 대응하는 id, type, value 프로퍼티가 존재하며
+    * 이 DOM 프로퍼티들은 HTML 어트리뷰트의 값을 초기값으로 가지고 있다.
+* DOM 프로퍼티는 setter, getter 둘다 가진 접근자 프로퍼티이다.
+    * 참조와 변경이 가능
 
+```html
+<!DOCTYPE html>
+<html>
+<body>
+    <input id="user" type="text" value="grape">
+    <script>
+        const $input = document.getElementById('user');
+
+        // 요소 노드의 value 프로퍼티 값을 변경
+        $input.value = 'foo';
+
+        // 요소 노드의 value 프로퍼티 값을 참조
+        console.log($input.value); // foo
+    </script>
+</body>
+</html>
+```
+* HTML 어트리뷰트는 다음과 같이 DOM에서 중복 관리되고 있는 것처럼 보인다. -> 그렇지 않다!
+    * 요소 노드의 attributes 프로퍼티에서 관리하는 어트리뷰트 노드
+    * HTML 어트리뷰트에 대응하는 요소 노드의 프로퍼티(DOM 프로퍼티)
+* **HTML 어트리뷰트의 역할은 HTML 요소의 초기 상태를 지정하는 것이다.**
+    * **즉, HTML 어트리뷰트 값은 HTML 요소의 초기 상태를 의미하며 이는 변하지 않는다.**
+* 따라서 input 요소의 요소 노드가 **생성되어 첫 렌더링이 끝난 시점**까지 어트리뷰트 노드의 어트리뷰트 값과 요소 노드의 value 프로퍼티에 할당된 값은 HTML 어트리뷰트 값과 동일하다.
+```html
+<!DOCTYPE html>
+<html>
+<body>
+    <input id="user" type="text" value="grape">
+    <script>
+        const $input = document.getElementById('user');
+
+        // attributes 프로퍼티에 저장된 value 어트리뷰트 값
+        console.log($input.getAttribute('value')); // grape
+
+        // 요소 노드의 value 프로퍼티에 저장된 value 어트리뷰트 값
+        console.log($input.value); // grape
+    </script>
+</body>
+</html>
+```
+---
+* 하지만 첫 렌더링 이후 사용자가 input 요소에 무언가를 입력하기 시작하면 상황이 달라진다.
+* **요소 노드는 상태를 가지고 있다.**
+* 예시
+    * 사용자가 input 요소의 입력 필드에 "foo" 라는 값을 입력한 경우
+    * input 요소 노드는 사용자의 입력에 의해 변경된 **최신 상태**("foo")를 관리해야 하는 것은 물론
+    * HTML 어트리뷰트로 지정한 **초기 상태**("grape")도 관리해야 한다.
+    * 초기 상태 값을 관리하지 않으면 웹페이지를 처음 표시하거나 새로고침할 때 초기 상태를 표시할 수 없다.
+* **요소 노드는 2개의 상태, 즉 초기 상태와 최신 상태를 관리해야 한다.**
+* **요소 노드의 초기 상태는 어트리뷰트 노드가 관리하며, 요소 노드의 최신 상태는 DOM 프로퍼티가 관리한다.**
 #### 3.1 어트리뷰트 노드
 
 #### 3.2 DOM 프로퍼티
