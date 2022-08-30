@@ -810,8 +810,134 @@ timeStamp|이벤트가 발생한 시각(1970/01/01/00:00:0 부터 경과한 밀�
 </html>
 ```
 ## 커스텀 이벤트
-test commit
 ### 1. 커스텀 이벤트 생성
+* Event, UIEvent, MouseEvent 같은 이벤트 생성자 함수를 호출하여 명시적으로 생성한 이벤트 객체는 임의의 이벤트 타입을 지정할 수 있다.
+    * 이처럼 개발자의 의도로 생성된 이벤트를 커스텀 이벤트라 한다.
+* 이벤트 생성자 함수는 첫 번째 인수로 이벤트 타입을 나타내는 문자열을 전달받는다.
+    * 이벤트 타입을 나타내는 문자열은 기존 이벤트 타입을 사용할 수도 있고,
+    * 기존 이벤트 타입이 아닌 임의의 문자열을 사용하여 새로운 이벤트 타입을 지정할 수도 있다.
+        * 이 경우 일반적으로 CustomEvent 이벤트 생성자 함수를 사용한다.
 
+```javascript
+// KeyboardEvent 생성자 함수로 keyup 이벤트 타입의 커스텀 이벤트 객체를 생성
+const keyboardEvent = new KeyboardEvent('keyup');
+console.log(keyboardEvent.type); // keyup
+
+// CustomEvent 생성자 함수로 foo 이벤트 타입의 커스텀 이벤트 객체를 생성
+const customEvent = new CustomEvent('foo');
+console.log(customEvent.type); // foo
+```
+* 커스텀 이벤트 객체는 버블링되지 않으며 preventDefault 메서드로 취소할 수도 없다.
+    * 즉, 커스텀 이벤트 객체는 bubbles와 cancelable 프로퍼티의 값이 false로 기본 설정된다.
+* 커스텀 이벤트 객체의 bubbles 또는 cancelable 프로퍼티를 true로 설정하려면 이벤트 생성자 함수의 두 번째 인수로 bubbles 또는 cancelable 프로퍼티를 갖는 객체를 전달한다.
+```javascript
+// MouseEvent 생성자 함수로 click 이벤트 타입의 커스텀 이벤트 객체를 생성
+const customEvent1 = new MouseEvent('click');
+console.log(customEvent1.type); // click
+console.log(customEvent1.bubbles); // false
+console.log(customEvent1.cancelable); // false
+
+const customEvent2 = new MouseEvent('click', {
+    bubbles: true,
+    cancelable: true
+});
+console.log(customEvent2.bubbles); // true
+console.log(customEvent2.cancelable); // true
+```
+* 커스텀 이벤트 객체는 이벤트 타입에 따라 가지는 이벤트 고유의 프로퍼티 값을 지정할 수 있다.
+* 예시
+    * MouseEvent 생성자 함수로 생성한 마우스 이벤트 객체는 마우스 포인터의 좌표 정보를 나타내는  
+    마우스 이벤트 객체 고유의 프로퍼티 screenX/screenY, clientX/clientY, pageX/pageY, offsetX/offsetY 와  
+    버튼 정보를 나타내는 프로퍼티 altKey, ctrlKey, shiftKey, button 을 갖는다.
+    * 이벤트 객체의 고유의 프로퍼티 값을 지정하려면 다음과 같이 이벤트 생성자 함수의 두 번째 인수로 프로퍼티를 전달한다.
+
+```javascript
+// MouseEvent 생성자 함수로 click 이벤트 타입의 커스텀 이벤트 객체를 생성
+const mouseEvent = new MouseEvent('click', {
+    bubbles: true,
+    cancelable: true,
+    clientX: 50,
+    clientY: 100
+});
+
+console.log(mouseEvent.clientX); // 50
+console.log(mouseEvent.clientY); // 100
+
+// KeyboardEvent 생성자 함수로 keyup 이벤트 타입의 커스텀 이벤트 객체를 생성
+const keyboardEvent = new KeyboardEvent('keyup', { key: 'Enter' });
+
+console.log(keyboardEvent.key); // Enter
+```
+* 이벤트 생성자 함수로 생성한 커스텀 이벤트는 isTrusted 프로퍼티의 값이 언제나 false 다.
+* 커스텀 이벤트가 아닌 사용자의 행위에 의해 발생한 이벤트에 의해 생성된 이벤트 객체의 isTrusted 프로퍼티 값은 언제나 true 다.
+```javascript
+// InputEvent 생성자 함수로 foo 이벤트 타입의 커스텀 이벤트 객체를 생성
+const customEvent = new InputEvent('foo');
+console.log(customEvent.inTrusted); // false
+```
 ### 2. 커스텀 이벤트 디스패치
+* 커스텀 이벤트는 `dispatchEvent` 메서드로 디스패치(이벤트를 발생시키는 행위)할 수 있다.
+* dispatchEvent 메서드에 이벤트 객체를 인수로 전달하여 호출하면 인수로 전달한 이벤트 타입의 이벤트가 발생한다.
+```html
+<!DOCTYPE html>
+<html>
+    <body>
+        <button class="btn">Click me</button>
+        <script>
+            const $button = document.querySelector('.btn');
 
+            // 버튼 요소에 foo 커스텀 이벤트 핸드러를 등록
+            // 커스텀 이벤트를 디스패치하기 이전에 이벤트 핸들러를 등록해야 한다.
+            $button.addEventListener('click', e => {
+                console.log(e); // MouseEvent { isTrusted: false, screenX: 0, ... }
+                alert(`${e} Clicked!`);
+            });
+
+            // 커스텀 이벤트 생성
+            const customEvent = new MouseEvent('click');
+            
+            // 커스텀 이벤트 디스패치(동기 처리). click 이벤트가 발생한다.
+            $button.dispatchEvent(customEvent);
+        </script>
+    </body>
+</html>
+```
+* 일반적으로 이벤트 핸들러는 비동기 처리 방식으로 동작하지만, dispatchEvent 메서드는 이벤트 핸들러를 동기 처리 방식으로 호출한다.
+    * 다시 말해, dispatchEvent 메서드를 호출하면 커스텀 이벤트에 바인딩된 이벤트 핸들러를 직접 호출하는 것과 같다.
+* 따라서 dispatchEvent 메서드로 이벤트를 디스패치하기 이전에 커스텀 이벤트를 처리할 이벤트 핸들러를 등록해야 한다.
+---
+* CustomEvent 이벤트 생성자 함수에는 두 번째 인수로 이벤트와 함께 전달하고 싶은 정보르 담은 detail 프로퍼티를 포함하는 객체를 전달할 수 있다.
+    * 해당 정보는 이벤트 객체의 detail 프로퍼티(e.detail)에 담겨 전달된다.
+
+```html
+<!DOCTYPE html>
+<html>
+    <body>
+        <button class="btn">Click me</button>
+        <script>
+            const $button = document.querySelector('.btn');
+
+            // 버튼 요소에 foo 커스텀 이벤트 핸드러를 등록
+            // 커스텀 이벤트를 디스패치하기 이전에 이벤트 핸들러를 등록해야 한다.
+            $button.addEventListener('foo', e => {
+                // e.detail 에는 CustomEvent 함수의 두 번째 인수로 전달한 정보가 담겨 있다.
+                alert(e.detail.message);
+            });
+
+            // CustomEvent 생성자 함수로 foo 이벤트 타입의 커스텀 이벤트 객체를 생성
+            const customEvent = new CustomEvent('foo', {
+                detail: { message: 'Hello' } // 이벤트와 함께 전달하고 싶은 정보
+            });
+            
+            // 커스텀 이벤트 디스패치(동기 처리)
+            $button.dispatchEvent(customEvent);
+        </script>
+    </body>
+</html>
+```
+* 임의의 이벤트 타입을 지정하여 커스텀 이벤틑 객체를 생성한 경우 반드시 addEventListener 메서드 방식으로 이벤트 핸들러를 등록해야 한다.
+* 이벤트 핸들러 어트리뷰트/프로퍼티 방식을 사용할 수 없는 이유는 'on + 이벤트 타입' 으로 이루어진 이벤트 핸들러 어트리뷰트/프로퍼티가 요소 노드에 존재하지 않기 때문
+    * 예시
+    * 'foo' 라는 임의의 이벤트 타입으로 커스텀 이벤트를 생성한 경우
+    * 'onfoo' 라는 핸들러 어트리뷰트/프로퍼티가 요소 노드에 존재하지 않기 때문에
+    * 이벤트 핸들러 어트리뷰트/프로퍼티 방식으로는 이벤트 핸들러를 등록할 수 없다.
